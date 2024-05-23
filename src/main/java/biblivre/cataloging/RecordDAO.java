@@ -53,7 +53,7 @@ public abstract class RecordDAO extends AbstractDAO {
 		Connection con = null;
 		
 		//Atualiza biblio_records_id_seq com o valor id atual de biblio_records
-		//fixSequence("biblio_records_id_seq","biblio_records","id");
+		fixSequence("biblio_records_id_seq","biblio_records","id");
  
 	try {
 			StringBuilder sql = new StringBuilder();
