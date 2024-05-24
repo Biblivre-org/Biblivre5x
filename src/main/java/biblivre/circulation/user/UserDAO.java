@@ -284,18 +284,21 @@ public class UserDAO extends AbstractDAO {
 			PreparedStatement pst = null;
 			Boolean newUser = user.getId() == 0;
 			
+			//Atualiza users_id_seq com o último valor da coluna id, na tabela users
+			fixSequence("users_id_seq","users","id");
+			
 			if (newUser) {
 				user.setId(this.getNextSerial("users_id_seq"));
 				sql.append("INSERT INTO users (id, name, type, photo_id, status, created_by, name_ascii) ");
-				sql.append("VALUES (?, ?, ?, ?, ?, ?, ?);");
+				sql.append("VALUES (?, ?, ?, ?, ?, ?);");
 				pst = con.prepareStatement(sql.toString());
-				pst.setInt(1, user.getId());
-				pst.setString(2, user.getName());
-				pst.setInt(3, user.getType());
-				pst.setString(4, user.getPhotoId());
-				pst.setString(5, user.getStatus().toString());
-				pst.setInt(6, user.getCreatedBy());
-				pst.setString(7, TextUtils.removeDiacriticals(user.getName()));
+				
+				pst.setString(1, user.getName());
+				pst.setInt(2, user.getType());
+				pst.setString(3, user.getPhotoId());
+				pst.setString(4, user.getStatus().toString());
+				pst.setInt(5, user.getCreatedBy());
+				pst.setString(6, TextUtils.removeDiacriticals(user.getName()));
 			} else {
 				sql.append("UPDATE users SET modified = now(), ");
 				sql.append("type = ?, photo_id = ?, status = ?, name = ?, modified_by = ?, user_card_printed = ?, name_ascii = ? ");
