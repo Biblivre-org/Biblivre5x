@@ -30,8 +30,8 @@
 				LoginDTO login = (LoginDTO) session.getAttribute(request.getAttribute("schema") + ".logged_user");
 				pageContext.setAttribute("login", login);
 	
-				if (login != null) {
-					pageContext.setAttribute("name", login.getFirstName());
+				if (login != null) {					
+					pageContext.setAttribute("name", login.getFirstName(),PageContext.SESSION_SCOPE);
 				}
 			%>
 	
@@ -40,7 +40,7 @@
 					<i18n:text key="text.main.logged_out" />
 				</c:when>
 				<c:otherwise>
-					<i18n:text key="text.main.logged_in" param1="${name}" />
+					<i18n:text key="text.main.logged_in" param1="${name}" />								
 				</c:otherwise>
 			</c:choose>
 		</div>

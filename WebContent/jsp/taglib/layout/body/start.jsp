@@ -97,7 +97,11 @@
 											</c:forEach>
 										</menu:level>
 									</c:forEach>
-									<menu:help />
+									<menu:help />									
+									<li style="color:yellow;padding-left:40px;">
+									   <%= pageContext.getAttribute("name",PageContext.SESSION_SCOPE) %>
+									</li>								
+									
 									<menu:logout />
 								</c:when>
 								<c:otherwise>
