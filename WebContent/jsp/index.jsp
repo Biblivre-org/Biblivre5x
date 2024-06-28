@@ -30,7 +30,7 @@
 				LoginDTO login = (LoginDTO) session.getAttribute(request.getAttribute("schema") + ".logged_user");
 				pageContext.setAttribute("login", login);
 	
-				if (login != null) {					
+				if (login != null) {//Login					
 					pageContext.setAttribute("name", login.getFirstName(),PageContext.SESSION_SCOPE);
 				}
 			%>

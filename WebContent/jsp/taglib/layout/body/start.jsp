@@ -98,7 +98,7 @@
 										</menu:level>
 									</c:forEach>
 									<menu:help />									
-									<li style="color:yellow;padding-left:40px;">
+									<li style="color:yellow;padding-left:40px;"><%-- Login --%>
 									  <%= pageContext.getAttribute("name",PageContext.SESSION_SCOPE) %>
 									</li>								
 									
