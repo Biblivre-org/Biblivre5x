@@ -25,7 +25,7 @@
 			<img src="static/images/main_picture_1.jpg"/>
 		</div>
 
-		<div class="text">
+		<div class="text">		
 			<%
 				LoginDTO login = (LoginDTO) session.getAttribute(request.getAttribute("schema") + ".logged_user");
 				pageContext.setAttribute("login", login);

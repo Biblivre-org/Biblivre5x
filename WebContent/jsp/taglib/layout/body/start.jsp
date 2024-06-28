@@ -99,7 +99,7 @@
 									</c:forEach>
 									<menu:help />									
 									<li style="color:yellow;padding-left:40px;">
-									   <%= pageContext.getAttribute("name",PageContext.SESSION_SCOPE) %>
+									  <%= pageContext.getAttribute("name",PageContext.SESSION_SCOPE) %>
 									</li>								
 									
 									<menu:logout />
