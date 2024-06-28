@@ -40,7 +40,7 @@ public class Constants {
 	public static final Charset WINDOWS_CHARSET = Charset.forName("cp1252");
 
 	public static final String BIBLIVRE = "Biblivre";
-	public static final String BIBLIVRE_VERSION = "5.0.5";
+	public static final String BIBLIVRE_VERSION = "5x";
 	public static final String UPDATE_URL = "http://update.biblivre.org.br";
 	public static final String DOWNLOAD_URL = "http://update.biblivre.org.br";
 
