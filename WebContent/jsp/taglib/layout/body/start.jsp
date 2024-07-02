@@ -21,6 +21,29 @@
 <jsp:useBean id="isEmployee" type="java.lang.Boolean" scope="request" />
 <jsp:useBean id="isLogged" type="java.lang.Boolean" scope="request" />
 
+
+
+<script type='text/javascript'>//Recarrega página para atualizar o atributo ${name}
+
+(function()
+{
+  if( window.localStorage )
+  {
+    if( !localStorage.getItem('firstLoad') )
+    {
+      localStorage['firstLoad'] = true;
+      window.location.reload();
+    }  
+    else
+      localStorage.removeItem('firstLoad');
+  }
+})();
+
+</script>
+
+
+
+
 <c:set var="multiPartAttributes">
 	enctype="multipart/form-data" accept-charset="UTF-8"
 </c:set>
@@ -97,12 +120,11 @@
 											</c:forEach>
 										</menu:level>
 									</c:forEach>
-									<menu:help />									
-									<li style="color:yellow;padding-left:40px;"><%-- Login --%>
-									  <%= pageContext.getAttribute("name",PageContext.SESSION_SCOPE) %>
-									</li>								
-									
-									<menu:logout />
+									<menu:help />
+									<menu:logout />							
+									<li style="padding-left:40px;font-size: 14px;color:yellow;"><%-- Login --%>
+									  <c:out value="${name}"></c:out>
+									</li>
 								</c:when>
 								<c:otherwise>
 									<menu:level module="search">
