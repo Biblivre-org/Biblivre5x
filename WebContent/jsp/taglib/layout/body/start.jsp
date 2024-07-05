@@ -102,8 +102,7 @@
 										<menu:item module="multi_schema" action="multi_schema_backup"  />
 									</menu:level>
 									<menu:help />
-									<li>&nbsp;</li>
-									<li style="font-size: 16px;color:yellow;"><%-- Login --%>
+									<li style="padding-left: 450px;font-size: 16px;color:orange;"><%--Login multibiblioteca--%>
 									  <c:out value="${name}"></c:out>
 									</li>
 									<menu:logout />
@@ -125,7 +124,7 @@
 										</menu:level>
 									</c:forEach>
 									<menu:help />
-									<li style="padding-left:40px;font-size: 16px;color:yellow;"><%-- Login --%>
+									<li style="padding-left:40px;font-size: 16px;color:yellow;"><%--Login single --%>
 									  <c:out value="${name}"></c:out>
 									</li>
 									<menu:logout />	
