@@ -573,9 +573,12 @@ public class ReportsDAO extends AbstractDAO {
 		
 		Connection con = null;
 		Connection con2 = null;
+		Connection con3 = null;
+		
 		try {
 			con = this.getConnection();
 			con2 = this.getConnection();
+			con3 = this.getConnection();
 			
 			StringBuilder firstSql = new StringBuilder();
 			firstSql.append("SELECT count(u.type) as total, t.description, t.id ");
@@ -585,6 +588,14 @@ public class ReportsDAO extends AbstractDAO {
 			firstSql.append("GROUP BY u.type, t.description, t.id ");
 			firstSql.append("ORDER BY t.description;");
 			ResultSet rs = con.createStatement().executeQuery(firstSql.toString());
+			
+			StringBuilder inativos = new StringBuilder();
+			inativos.append("SELECT name, id, created, modified from users ");
+			inativos.append("FROM users u");
+			inativos.append("WHERE u.status = '" + UserStatus.INACTIVE.toString() + "' ");
+
+			ResultSet rsInativos = con.createStatement().executeQuery(inativos.toString());
+			
 
 			while (rs.next()) {
 				final String description = rs.getString("description");
@@ -612,6 +623,7 @@ public class ReportsDAO extends AbstractDAO {
 		} finally {
 			this.closeConnection(con);
 			this.closeConnection(con2);
+			this.closeConnection(con3);
 		}
 		return dto;
 	}

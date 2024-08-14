@@ -26,6 +26,20 @@ var CirculationLabels = {
 		columns: 3,
 		rows: 6,
 		paper_size: 'A4'
+	}, {
+		model: '8099F',
+		width: 77.79,
+		height: 46.56,
+		columns: 2,
+		rows: 5,
+		paper_size: 'Letter'
+}, {
+		model: 'A414',
+		width: 99.1,
+		height: 38.1,
+		columns: 2,
+		rows: 7,
+		paper_size: 'A4'			
 	}],
 	printLabels: function() {
 		this.configureLabelFormat();

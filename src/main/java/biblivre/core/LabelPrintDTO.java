@@ -32,6 +32,7 @@ public class LabelPrintDTO extends AbstractDTO {
 	private int columns;
 	private int rows;
 	private String model;
+	private String paperSize;
 
 	public Set<Integer> getIds() {
 		return this.ids;
@@ -88,4 +89,14 @@ public class LabelPrintDTO extends AbstractDTO {
 	public void setModel(String model) {
 		this.model = model;
 	}
+
+	public String getPaperSize() {
+		return this.paperSize;
+	}
+
+	public void setPaperSize(String paperSize) {
+		this.paperSize = paperSize;
+	}
+	
+	
 }

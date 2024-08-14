@@ -128,9 +128,9 @@ public class DatabaseUtils {
 		commands = new String[] {
 			"/bin/sh",
 			"-c",
-			"\"/bin/ps axwwww -o comm | grep -v grep | grep postgres$ | sed 's/postgres$//'\""
+			"/bin/ps axwwww -o comm | grep -v grep | grep postgres$ | sed 's/postgres$//'"
 		};
-
+		
 		String path = DatabaseUtils.processPatternMatcher(commands, "(.*)", 1);		
 		return new File(path, filename);
 	}

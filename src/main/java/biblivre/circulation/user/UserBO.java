@@ -22,21 +22,12 @@ package biblivre.circulation.user;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
-
-import biblivre.administration.usertype.UserTypeBO;
-import biblivre.administration.usertype.UserTypeDTO;
-import biblivre.core.AbstractBO;
-import biblivre.core.AbstractDTO;
-import biblivre.core.DTOCollection;
-import biblivre.core.LabelPrintDTO;
-import biblivre.core.file.DiskFile;
-import biblivre.core.translations.TranslationsMap;
-import biblivre.core.utils.Constants;
 
 import com.lowagie.text.Chunk;
 import com.lowagie.text.Document;
@@ -51,6 +42,15 @@ import com.lowagie.text.pdf.PdfContentByte;
 import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
+
+import biblivre.administration.usertype.UserTypeBO;
+import biblivre.administration.usertype.UserTypeDTO;
+import biblivre.core.AbstractBO;
+import biblivre.core.AbstractDTO;
+import biblivre.core.DTOCollection;
+import biblivre.core.LabelPrintDTO;
+import biblivre.core.file.DiskFile;
+import biblivre.core.translations.TranslationsMap;
 
 public class UserBO extends AbstractBO {
 
@@ -129,37 +129,51 @@ public class UserBO extends AbstractBO {
 
 		try {
 			File file = File.createTempFile("biblivre_user_cards_", ".pdf");
-
 			fos = new FileOutputStream(file);
 			PdfWriter writer = PdfWriter.getInstance(document, fos);
+			
+	        float pageWidth = 210.0F;
+	        float pageHeight = 297.0F;
+	        
+	         if (dto.getPaperSize() != null && dto.getPaperSize().equals("Letter")) {
+	            document.setPageSize(PageSize.LETTER);
+	            pageWidth = 216.0F;
+	            pageHeight = 279.0F;
+	         } else {
+	            document.setPageSize(PageSize.A4);
+	         }
 
-			document.setPageSize(PageSize.A4);
-			document.setMargins(
-					7.15f * Constants.MM_UNIT,
-					7.15f * Constants.MM_UNIT,
-					9.09f * Constants.MM_UNIT,
-					9.09f * Constants.MM_UNIT
-					);
+	         float verticalMargin = (pageHeight - dto.getHeight() * (float)dto.getRows()) / 2.0F;
+	         float horizontalMargin = (pageWidth - dto.getWidth() * (float)dto.getColumns()) / 2.0F;
+	         document.setMargins(horizontalMargin * 2.8346457F, horizontalMargin * 2.8346457F, 
+	        		               verticalMargin * 2.8346457F, verticalMargin * 2.8346457F);
+	         
 			document.open();
-			PdfPTable table = new PdfPTable(3);
+			PdfPTable table = new PdfPTable(dto.getColumns());
 			table.setWidthPercentage(100f);
 			PdfPCell cell;
 			int i = 0;
 			int offset = dto.getOffset();
 			//Fill the empty cell till the startOffset cell
+			
 			for (i = 0; i < offset; i++) {
 				cell = new PdfPCell();
 				cell.setBorder(Rectangle.NO_BORDER);
-				cell.setFixedHeight(46.47f * Constants.MM_UNIT);
+				cell.setFixedHeight(dto.getHeight() * 2.8346457F);
 				table.addCell(cell);
 			}
+			
 			Map<Integer, UserDTO> userMap = this.map(dto.getIds());
 			UserTypeBO utbo = UserTypeBO.getInstance(this.getSchema());
-			for (UserDTO user : userMap.values()) {
+			Iterator var18 = userMap.values().iterator();
+
+			while(var18.hasNext()) {
+				UserDTO user = (UserDTO)var18.next();
 				String userId = String.valueOf(user.getId());
 				PdfContentByte cb = writer.getDirectContent();
 				Barcode39 code39 = new Barcode39();
 				code39.setExtended(true);
+				
 				while (userId.length() < 10) {
 					userId = "0" + userId;
 				}
@@ -181,7 +195,7 @@ public class UserBO extends AbstractBO {
 				para.add(p2);
 				cell = new PdfPCell(para);
 				i++;
-				cell.setFixedHeight(46.47f * Constants.MM_UNIT);
+				cell.setFixedHeight(dto.getHeight() * 2.8346457F);
 				cell.setHorizontalAlignment(Element.ALIGN_CENTER);
 				cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
 				cell.setBorder(Rectangle.NO_BORDER);
@@ -203,8 +217,8 @@ public class UserBO extends AbstractBO {
 			fos.close();
 
 			return new DiskFile(file, "application/pdf");
-		} catch (Exception e) {
-			this.logger.error(e.getMessage(), e);
+	      } catch (Exception var30) {
+	          this.logger.error(var30.getMessage(), var30);
 		} finally {
 			IOUtils.closeQuietly(fos);
 		}
