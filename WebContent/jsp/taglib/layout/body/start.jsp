@@ -42,8 +42,6 @@
 </script>
 
 
-
-
 <c:set var="multiPartAttributes">
 	enctype="multipart/form-data" accept-charset="UTF-8"
 </c:set>
@@ -64,6 +62,37 @@
 				</a>
 			</div>
 
+<!-- APOIO -->
+
+<div id="logo_support" style="">
+	<div style="display: block;">     
+        <a href="https://www.gov.br/cultura/pt-br" target="_blank">
+          <img src="static/images/logo_lei_de_incentivo.png" width="88" height="66" alt="Lei de Incentivo à Cultura" 
+          title="Lei de Incentivo à Cultura">
+        </a> 
+    </div>
+    <div style="display: block;">
+        <img src="static/images/logo_pedro_i.png" width="88" height="66" alt="Organização Pedro I" title="Organização Pedro I">
+     </div>
+    <div style="display: block;">
+        <img src="static/images/logo_sabin.png" width="88" height="66" alt="SABIN" title="SABIN">
+      </div>
+      <div style="display: block;">
+        <a href="https://www.gov.br/bn/pt-br" target="_blank">
+          <img src="static/images/logo_biblioteca_nacional.png" width="88" height="66" alt="Biblioteca Nacional" title="Biblioteca Nacional">
+        </a>
+      </div>
+
+<!-- PATROCINADOR -->
+        
+</div>
+<div id="logo_sponsor" style="">
+      <a href="http://www.itaucultural.org.br/" target="_blank">
+        <img src="static/images/logo_itau.png" width="77" height="66" alt="Itaú Cultural" title="Itaú Cultural">
+      </a>
+      <div id="clock"></div>
+</div>
+
 			<div id="title">
 				<div id="logo_biblivre_small">
 					<a href="http://biblivre.org.br/" target="_blank">
@@ -73,6 +102,7 @@
 				<h1><a href="?"><%= Configurations.getString(schema, Constants.CONFIG_TITLE) %></a></h1>
 				<h2><%= Configurations.getHtml(schema, Constants.CONFIG_SUBTITLE) %></h2>
 			</div>
+			
 			<c:if test="${languages.size() > 1}">
 				<div id="language_selection">
 					<select class="combo combo_auto_size" name="i18n" onchange="Core.submitForm('menu', 'i18n', 'jsp');">
