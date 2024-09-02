@@ -71,6 +71,7 @@ public class Handler extends AbstractHandler {
 		print.setColumns(request.getInteger("columns"));
 		print.setRows(request.getInteger("rows"));
 		print.setModel(request.getString("model"));
+		print.setPaperSize(request.getString("paper_size", "A4"));
 
 		request.setSessionAttribute(schema, printId, print);
 		

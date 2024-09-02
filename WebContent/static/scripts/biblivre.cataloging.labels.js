@@ -83,6 +83,13 @@ var CatalogingLabels = {
 		columns: 3,
 		rows: 11,
 		paper_size: 'A4'
+	}, {
+		model: '6180',
+		width: 66.7,
+		height: 25.4,
+		columns: 3,
+		rows: 10,
+		paper_size: 'Letter'	
 	}],
 	printLabels: function() {
 		this.configureLabelFormat();
