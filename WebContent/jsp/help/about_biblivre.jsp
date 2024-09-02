@@ -22,7 +22,9 @@
 		
 		<fieldset class="copyright">
 			<p><strong>BIBLIVRE</strong></p>
-			<p>&copy;2010-2013 Ubaldo Santos Miranda, Alberto Wagner Collavizza, Danniel Willian B. do Nascimento e Clarice Muhlethaler de Souza</p>
+			<p>&copy;2010-2024</p>
+			<p>Ubaldo Santos Miranda, Wilerson Lucas, Cleydyr Albuquerque, Alberto Wagner Collavizza, Danniel Willian B. do Nascimento, 
+			Johenir Viégas, Patricia Almeida e Clarice Muhlethaler de Souza</p>
 			<p>Todos os direitos reservados</p>
 		</fieldset>
 		
