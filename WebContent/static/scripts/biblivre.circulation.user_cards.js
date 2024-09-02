@@ -34,8 +34,8 @@ var CirculationLabels = {
 		rows: 5,
 		paper_size: 'Letter'
 }, {
-		model: 'A414',
-		width: 99.1,
+		model: 'A4263',
+		width: 99,
 		height: 38.1,
 		columns: 2,
 		rows: 7,
