@@ -89,7 +89,14 @@ var CatalogingLabels = {
 		height: 25.4,
 		columns: 3,
 		rows: 10,
-		paper_size: 'Letter'	
+		paper_size: 'Letter'
+	}, {
+		model: '6082',
+		width: 101.6,
+		height: 33.9,
+		columns: 2,
+		rows: 7,
+		paper_size: 'Letter'		
 	}],
 	printLabels: function() {
 		this.configureLabelFormat();

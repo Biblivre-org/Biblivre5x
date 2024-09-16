@@ -20,6 +20,13 @@
  */
 var CirculationLabels = {
 	labels: [{
+		model: 'A4263',
+		width: 99,
+		height: 38.1,
+		columns: 2,
+		rows: 7,
+		paper_size: 'A4'
+	}, {
 		model: 'A4361',
 		width: 63.5,
 		height: 46.5,
@@ -32,14 +39,7 @@ var CirculationLabels = {
 		height: 46.56,
 		columns: 2,
 		rows: 5,
-		paper_size: 'Letter'
-}, {
-		model: 'A4263',
-		width: 99,
-		height: 38.1,
-		columns: 2,
-		rows: 7,
-		paper_size: 'A4'			
+		paper_size: 'Letter'		
 	}],
 	printLabels: function() {
 		this.configureLabelFormat();
