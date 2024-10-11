@@ -472,6 +472,44 @@ FormCustomization.remove = function(button) {
 	});
 };
 
+
+
+FormCustomization.restoreDatafield = function(button) {
+	if (FormCustomization.editMode) {
+		return;
+	}
+	var fieldset = $(button).closest('fieldset');
+	
+	Core.popup({
+		title: _('administration.form_customization.confirm_restore_datafield'),
+		description: _('administration.form_customization.confirm_restore_datafield_description'),
+		okHandler: $.proxy(function() {
+			$.ajax({
+				url: window.location.pathname,
+				type: 'POST',
+				dataType: 'json',
+				loadingTimedOverlay: true,		
+				data: {
+					controller: 'json',
+					module: 'administration.customization',
+					action: 'restore_form_datafield'
+					
+				},
+				success: function(response) {
+					if (response.success) {
+						fieldset.remove();
+					}
+
+					Core.msg(response);
+				}
+			});
+		}, this),
+		cancelHandler: $.proxy(function() {
+		}, this)
+	});
+};
+
+
 FormCustomization.removeSubfield = function(button) {
 	$(button).closest('tr').remove();
 };

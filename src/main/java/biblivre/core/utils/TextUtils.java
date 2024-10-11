@@ -19,7 +19,15 @@
  ******************************************************************************/
 package biblivre.core.utils;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.text.Normalizer;
 import java.text.ParseException;
@@ -264,5 +272,20 @@ public class TextUtils {
 
 		return text + "zzzzzzzzzzzzzzzzz";
 	}
+	
+		//Paths.get(ClassLoader.getSystemResource("sql/restoreform.sql").toURI()).toString())
+	
+	//File file = new File(getServletContext().getRealPath(fileName));
+	/*
+	     	URL url = this.getClass().getClassLoader().getResource(fileName);
+    	File file = new File(url.getFile());
+	 */
+	
+    public String readFile(File filepath) throws IOException {    	
+
+    	String content = new String(Files.readAllBytes(filepath.toPath()));
+    	
+    	return content;
+    }
 
 }

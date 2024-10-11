@@ -19,6 +19,7 @@
  ******************************************************************************/
 package biblivre.administration.customization;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -213,4 +214,19 @@ public class Handler extends AbstractHandler {
 		}
 	}
 	
+		
+	
+	public void restoreFormDatafield(ExtendedRequest request, ExtendedResponse response) {
+		String schema = request.getSchema();
+		File filepath = new File(request.getSession().getServletContext().getRealPath("/"), "sql/restoreform.sql");			
+		RecordType recordType = request.getEnum(RecordType.class, "record_type", RecordType.BIBLIO);
+		
+		boolean success = Fields.restoreFormDatafield(schema, recordType,filepath,1);
+		
+		if (success) {
+			this.setMessage(ActionResult.SUCCESS, "cataloging.record.success.delete");
+		} else {
+			this.setMessage(ActionResult.WARNING, "cataloging.record.error.delete");
+		}
+	}
 }

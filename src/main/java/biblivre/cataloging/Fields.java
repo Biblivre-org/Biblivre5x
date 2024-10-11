@@ -19,6 +19,7 @@
  ******************************************************************************/
 package biblivre.cataloging;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -168,6 +169,20 @@ public class Fields extends StaticBO {
 
 		return result;
 	}
+	
+	
+	public static boolean restoreFormDatafield(String schema,RecordType recordType,File filepath ,int opcao) {
+
+		TabFieldsDAO dao = TabFieldsDAO.getInstance(schema);
+		boolean result = dao.restoreFormTabDatafield(recordType,filepath,opcao);
+
+		if (result) {
+
+		}
+
+		return result;
+	}
+	
 
 	public static JavascriptCacheableList<FormTabDatafieldDTO> getFormFields(
 			String schema, String type) {

@@ -40,7 +40,8 @@
 			
 			<div class="buttons">
 				<a class="main_button center" onclick="FormCustomization.addDatafield();"><i18n:text key="administration.form_customization.button_add_field" /></a>
-			</div>
+			</div>	
+
 		</fieldset>
 		
 		<div id="datafields"></div>
@@ -51,7 +52,7 @@
 					<div class="buttons">
 						<span class="cancel-datafield"><i class="fa fa-close"></i></span>
 						<span class="save-datafield"><i class="fa fa-check"></i></span>
-						<span class="trash-datafield"><i class="fa fa-trash-o"></i></span>
+						<span class="trash-datafield"><i class="fa fa-trash-o"></i></span>						
 						<span class="edit-datafield"><i class="fa fa-pencil"></i></span>
 						<span class="move-datafield"><i class="fa fa-bars"></i></span>
 					</div>
@@ -191,5 +192,11 @@
 		 	</div>
 		--></textarea>		
 		
+		
+			<div class="buttons" style="margin-top:30px;">
+				<a class="main_button center" onclick="FormCustomization.restoreDatafield();">
+		  		<i18n:text key="administration.form_customization.confirm_restore_datafield" />
+				</a>
+			</div>
 	</div>
 </layout:body>

@@ -19,6 +19,7 @@
  ******************************************************************************/
 package biblivre.cataloging;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -32,6 +33,7 @@ import java.util.Map.Entry;
 import biblivre.cataloging.enums.RecordType;
 import biblivre.core.AbstractDAO;
 import biblivre.core.exceptions.DAOException;
+import biblivre.core.utils.TextUtils;
 
 public class TabFieldsDAO extends AbstractDAO {
 	
@@ -394,4 +396,50 @@ public class TabFieldsDAO extends AbstractDAO {
 
 		return true;
 	}
+	
+	
+	
+	public boolean restoreFormTabDatafield(RecordType recordType,File filepath,int opcao) {
+
+		Connection con = null;
+		try {
+			con = this.getConnection();
+			con.setAutoCommit(false);
+			
+			StringBuilder subfieldSql = new StringBuilder();
+			subfieldSql.append(" DELETE FROM " + recordType + "_form_subfields ");			
+			
+			PreparedStatement pst = con.prepareStatement(subfieldSql.toString());			
+			
+			pst.executeUpdate();
+
+			StringBuilder datafieldSql = new StringBuilder();
+			datafieldSql.append(" DELETE FROM " + recordType + "_form_datafields ");			
+			
+			pst = con.prepareStatement(datafieldSql.toString());			
+			pst.executeUpdate();
+			
+			StringBuilder sqlInsert = new StringBuilder();
+			sqlInsert.append(new TextUtils().readFile(filepath));
+			
+			pst = con.prepareStatement(sqlInsert.toString());			
+			pst.executeUpdate();
+
+			con.commit();
+		} catch (Exception e) {
+			this.rollback(con);
+			throw new DAOException(e);
+		} finally {
+			this.closeConnection(con);
+		}
+
+		return true;
+	}
+	
+	
+
+	
+	
+
+	
 }
