@@ -13,8 +13,13 @@
 			</a>
 		</li>
 		<li class="submenu_help">
+			<a href="static/Manual_Biblivre_4.1.0.pdf" target="_blank">
+				<i18n:text key="menu.help_manual4" />
+			</a>
+		</li>
+		<li class="submenu_help">
 			<a href="static/Manual_Biblivre_5.0.0.pdf" target="_blank">
-				<i18n:text key="menu.help_manual" />
+				<i18n:text key="menu.help_manual5" />
 			</a>
 		</li>
 	</ul>
