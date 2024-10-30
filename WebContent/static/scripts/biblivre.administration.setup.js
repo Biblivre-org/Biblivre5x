@@ -18,6 +18,8 @@
  *  @author Danniel Willian <danniel@biblivre.org.br>
  * 
  */
+
+
 var Administration = Administration || {};
 
 Administration.setup = {};
@@ -359,5 +361,34 @@ Administration.setup.showConfirm = function(action, callback) {
 		cancelText: _('common.no'),
 		okHandler: $.proxy(callback, this),
 		cancelHandler: $.proxy($.noop, this)
+	});
+};
+
+
+Administration.setup.restoreDatafield = function(button) {
+
+	var fieldset = $(button).closest('fieldset');
+	
+	Core.popup({
+		title: _('administration.setup.restore.form'),
+		description: _('administration.setup.restore.form.confirm'),
+		okHandler: $.proxy(function() {
+			$.ajax({
+				url: window.location.pathname,
+				type: 'POST',
+				dataType: 'json',
+				loadingTimedOverlay: true,		
+				data: {
+					controller: 'json',
+					module: 'administration.setup',
+					action: 'restore_form_datafield'
+				},
+				success: function(response) {	
+				  window.location.href = window.location.pathname + '?action=administration_form_customization';
+				}
+			});
+		}, this),
+		cancelHandler: $.proxy(function() {
+		}, this)
 	});
 };

@@ -180,6 +180,19 @@
 				<a class="main_button arrow_right" onclick="Administration.setup.biblivre3ImportFromFile();"><i18n:text key="administration.setup.biblivre3restore.button" /></a>
 			</div>
 		</fieldset>	
+					
+		
+<fieldset>
+			<legend><i18n:text key="administration.setup.restore.form" /></legend>
+			<div class="description"><i18n:text key="administration.setup.restore.form.description" /></div>
+			<div class="spacer"></div>
+			<div class="buttons">
+				<a class="main_button arrow_right" onclick="Administration.setup.restoreDatafield(this);">
+				<i18n:text key="administration.setup.restore.form.button" /></a>
+			</div>
+</fieldset>	
+				
+		
 	</div>
 		
 	<div id="upload_popup" class="popup">

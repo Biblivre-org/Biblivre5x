@@ -192,11 +192,5 @@
 		 	</div>
 		--></textarea>		
 		
-		
-			<div class="buttons" style="margin-top:30px;">
-				<a class="main_button center" onclick="FormCustomization.restoreDatafield();">
-		  		<i18n:text key="administration.form_customization.confirm_restore_datafield" />
-				</a>
-			</div>
 	</div>
 </layout:body>

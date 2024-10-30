@@ -42,6 +42,8 @@ import biblivre.administration.backup.BackupScope;
 import biblivre.administration.backup.BackupType;
 import biblivre.administration.backup.RestoreBO;
 import biblivre.administration.backup.RestoreDTO;
+import biblivre.cataloging.Fields;
+import biblivre.cataloging.enums.RecordType;
 import biblivre.core.AbstractHandler;
 import biblivre.core.ExtendedRequest;
 import biblivre.core.ExtendedResponse;
@@ -484,4 +486,22 @@ public class Handler extends AbstractHandler {
 			this.json.put("complete", !State.LOCKED.get());
 		} catch (JSONException e) {}
 	}
+	
+	
+	
+	
+	public void restoreFormDatafield(ExtendedRequest request, ExtendedResponse response) {
+		String schema = request.getSchema();
+		File filepath = new File(request.getSession().getServletContext().getRealPath("/"), "restoreform.sql");			
+		RecordType recordType = request.getEnum(RecordType.class, "record_type", RecordType.BIBLIO);
+		
+		boolean success = Fields.restoreFormDatafield(schema, recordType,filepath,1);
+		
+		if (success) {
+			this.setMessage(ActionResult.SUCCESS, "cataloging.record.success.delete");
+		} else {
+			this.setMessage(ActionResult.WARNING, "cataloging.record.error.delete");
+		}
+	}
+	
 }
