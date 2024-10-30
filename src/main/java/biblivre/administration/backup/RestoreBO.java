@@ -84,7 +84,7 @@ public class RestoreBO extends AbstractBO {
 		for (File backup : FileUtils.listFiles(path, new String[]{"b4bz", "b5bz"}, false)) {
 			RestoreDTO dto = this.getRestoreDTO(backup);
 
-			if (dto.isValid()) {
+			if (dto.isValid() & dto!= null) {
 				list.add(dto);
 			}
 		}
