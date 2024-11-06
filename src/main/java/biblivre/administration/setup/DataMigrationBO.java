@@ -89,7 +89,7 @@ public class DataMigrationBO extends AbstractBO {
 	}
 	
 	public boolean isBiblivre3Available() {
-		return this.dao.testDatabaseConnection();
+		return this.dao.thereIsBiblivre3();
 	}
 	
 	public boolean migrate(List<DataMigrationPhase> selectedPhases) {

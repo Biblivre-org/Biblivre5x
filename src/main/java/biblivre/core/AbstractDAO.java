@@ -79,6 +79,21 @@ public abstract class AbstractDAO {
 		return instance;
 	}
 
+	public boolean thereIsBiblivre3() {	
+
+		try {			
+			 this.getConnection();//Se biblivre 3 não existir, um exceção é lançada ao tentar pegar uma conexão
+			 //indo direto para finally retornando falso. Exception foi omitido pois lançava exceção 5 vez, pelo
+			 //fazer teste para verificar se a base do biblivre3 existe ao entrar no móduo manutenção.
+			//this.getConnection() já procura pelo conexão com a base biblivre3.		
+			 return true;
+			
+		} finally {
+			return false;
+		}
+	}
+	
+	
 	public boolean testDatabaseConnection() {
 		Connection con = null;
 
@@ -93,6 +108,9 @@ public abstract class AbstractDAO {
 			this.closeConnection(con);
 		}
 	}
+	
+	
+	//select datname from pg_database where datname = 'biblivre4';
 	
 	public void setSchema(String schema) {
 		this.schema = schema;
