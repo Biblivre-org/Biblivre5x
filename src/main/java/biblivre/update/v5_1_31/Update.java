@@ -69,7 +69,14 @@ public class Update implements UpdateService {
 			put("pt-BR", "Manual do Biblivre 5");
 			put("es", "Manual del Biblivre 5");
 			put("en-US", "Biblivre Manual 5");
+		}});		
+		
+		put("multi_schema.manage.new_schema.button.back", new HashMap() {{
+			put("pt-BR", "Voltar");
+			put("es", "Para volver");
+			put("en-US", "To go back");
 		}});
+		
 		
 		
 	}};

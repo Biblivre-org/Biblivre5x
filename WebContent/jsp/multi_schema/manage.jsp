@@ -12,6 +12,14 @@
 <layout:head>
 	<script type="text/javascript" src="static/scripts/biblivre.multi_schema.js"></script>
 	<link rel="stylesheet" type="text/css" href="static/styles/biblivre.multi_schema.css" />
+	<script>
+	
+	function limpaCampos() {
+			document.querySelectorAll("#schema_title, #sub_title, #schema_schema").forEach(elInp => {
+				  elInp.value = elInp.defaultValue;
+				});
+	}		
+	</script>
 </layout:head>
 
 <layout:body multiPart="true">
@@ -47,7 +55,7 @@
 
 				<div>
 					<div class="label"><i18n:text key="multi_schema.manage.new_schema.field.subtitle" /></div>
-					<div class="value"><input type="text" name="subtitle" class="finput"/></div>
+					<div class="value"><input type="text" id="sub_title"name="subtitle" class="finput"/></div>
 					<div class="clear"></div>
 				</div>
 
@@ -58,9 +66,16 @@
 				</div>
 				
 				<div class="buttons">
-					<a class="main_button arrow_right" onclick="Schemas.create(this);"><i18n:text key="multi_schema.manage.new_schema.button.create" /></a>
+					<a class="main_button arrow_right" onclick="Schemas.create(this); limpaCampos();">
+					<i18n:text key="multi_schema.manage.new_schema.button.create" /></a>
 					<div class="clear"></div>
 				</div>
+				<div class="buttons">
+				<a class="main_button arrow_left" onclick="window.location.href = window.location.pathname;">
+				<i18n:text key="multi_schema.manage.new_schema.button.back" /></a>
+				<div class="clear"></div>
+			</div>
+				
 			</div>
 		</fieldset>	
 		
