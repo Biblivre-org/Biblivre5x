@@ -145,10 +145,11 @@ public class UpdatesDAO extends AbstractDAO {
 		}
 	}
 	
+	//dao.insertNewsZ3950_addresses(getVersion(), con);
 	
-	public void insertNewsZ3950_addresses(String version, Connection con, boolean insert) throws SQLException {
+	public void insertNewsZ3950_addresses(String version, Connection con) throws SQLException {
 		try {
-			
+			Z3950DAO z3050Insert = new Z3950DAO();
 			Z3950AddressDTO z = new Z3950AddressDTO();
 			List<Z3950AddressDTO> addressesList = new ArrayList<Z3950AddressDTO>();
 
@@ -169,21 +170,22 @@ public class UpdatesDAO extends AbstractDAO {
 			
 			if(!addressesList.isEmpty())
 				new Z3950DAO().deleteAll();	
-			
-			
-			if (insert) {
+						
+
 				try (PreparedStatement z3950 = con.prepareStatement(
 						"INSERT INTO versions (z3950_addresses) VALUES (?,?,?,?);")) {
-//INSERT INTO z3950_addresses (id, name, url, port, collection) VALUES (1, 'Universidad de Chile - Santiago, Chile', 'unicornio.uchile.cl', 2200, 'default');
+
 					PreparedStatementUtil.setAllParameters(z3950, version);
 					z3950.executeUpdate();
 				}
 
 				this.commit(con);
+				
+			
+			for(Z3950AddressDTO z3950: addressesList) {				
+				
+				new Z3950DAO().insert(z3950);
 			}
-			
-			
-			
 			
 			
 		}

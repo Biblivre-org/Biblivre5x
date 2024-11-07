@@ -47,6 +47,7 @@ import org.json.JSONObject;
 import biblivre.administration.setup.DataMigrationDAO;
 import biblivre.administration.setup.State;
 import biblivre.core.AbstractBO;
+import biblivre.core.Updates;
 import biblivre.core.exceptions.ValidationException;
 import biblivre.core.utils.Constants;
 import biblivre.core.utils.DatabaseUtils;
@@ -155,7 +156,9 @@ public class RestoreBO extends AbstractBO {
 		} catch (Exception e) {
 			throw new ValidationException("administration.maintenance.backup.error.couldnt_restore_backup", e);
 		} finally {
-			FileUtils.deleteQuietly(tmpDir);			
+			FileUtils.deleteQuietly(tmpDir);	
+			
+			Updates.globalUpdate();//Roda o update após restauração de backup feita pelo usuário
 		}
 	}
 	

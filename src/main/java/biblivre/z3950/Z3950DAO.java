@@ -257,6 +257,27 @@ public class Z3950DAO extends AbstractDAO {
 			this.closeConnection(con);
 		}
 	}
+	
+	
+	public boolean deleteAll() {
+		Connection con = null;
+
+		try {
+			con = this.getConnection();
+
+			String sql = "DELETE FROM z3950_addresses;";
+			
+			PreparedStatement pst = con.prepareStatement(sql);
+			
+			return pst.executeUpdate() > 0;
+			
+		} catch (Exception e) {
+			throw new DAOException(e);
+		} finally {
+			this.closeConnection(con);
+		}
+	}
+	
 
 	private Z3950AddressDTO populateDTO(ResultSet rs) throws SQLException {
 		Z3950AddressDTO dto = new Z3950AddressDTO();
