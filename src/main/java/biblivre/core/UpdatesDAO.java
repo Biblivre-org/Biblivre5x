@@ -24,8 +24,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import biblivre.z3950.Z3950AddressDTO;
+import biblivre.z3950.Z3950DAO;
+
 
 public class UpdatesDAO extends AbstractDAO {
 
@@ -139,4 +144,55 @@ public class UpdatesDAO extends AbstractDAO {
 			this.closeConnection(con);
 		}
 	}
+	
+	
+	public void insertNewsZ3950_addresses(String version, Connection con, boolean insert) throws SQLException {
+		try {
+			
+			Z3950AddressDTO z = new Z3950AddressDTO();
+			List<Z3950AddressDTO> addressesList = new ArrayList<Z3950AddressDTO>();
+
+			String sql = "SELECT * FROM single.z3950_addresses;";
+
+			Statement st = con.createStatement();
+			ResultSet rs = st.executeQuery(sql);
+			
+			while (rs.next()) {
+				   z.setName(rs.getString("name"));
+				   z.setUrl(rs.getString("url"));
+				   z.setPort(rs.getInt("port"));
+				   z.setCollection(rs.getString("collection"));
+				   
+				   addressesList.add(z);
+				   z = new Z3950AddressDTO();
+			}
+			
+			if(!addressesList.isEmpty())
+				new Z3950DAO().deleteAll();	
+			
+			
+			if (insert) {
+				try (PreparedStatement z3950 = con.prepareStatement(
+						"INSERT INTO versions (z3950_addresses) VALUES (?,?,?,?);")) {
+//INSERT INTO z3950_addresses (id, name, url, port, collection) VALUES (1, 'Universidad de Chile - Santiago, Chile', 'unicornio.uchile.cl', 2200, 'default');
+					PreparedStatementUtil.setAllParameters(z3950, version);
+					z3950.executeUpdate();
+				}
+
+				this.commit(con);
+			}
+			
+			
+			
+			
+			
+		}
+		finally {
+			this.closeConnection(con);
+		}
+	}
+	
+	
+	
+	
 }
