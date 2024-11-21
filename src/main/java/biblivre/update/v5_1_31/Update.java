@@ -10,8 +10,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import biblivre.core.AbstractDAO;
-import biblivre.core.PreparedStatementUtil;
 import biblivre.core.exceptions.DAOException;
 import biblivre.core.translations.Translations;
 import biblivre.update.UpdateService;
@@ -22,7 +20,7 @@ public class Update implements UpdateService {
 
 	public void doUpdate(Connection connection) throws SQLException {
 		_addTranslations();
-		_insertNewsZ3950Addresses(connection);
+		insertNewsZ3950Addresses(connection);
 	}
 
 	@Override
@@ -93,58 +91,29 @@ public class Update implements UpdateService {
 	}};
 		
 	
-	public void _insertNewsZ3950Addresses(Connection con) throws SQLException {
+	public void insertNewsZ3950Addresses(Connection con) throws SQLException{
+		
 		try {
-			List<String> zlist = null;
-			Z3950AddressDTO z = new Z3950AddressDTO();
-			List<Z3950AddressDTO> addressesList = new ArrayList<Z3950AddressDTO>();		
-
-			Statement st = con.createStatement();
-			ResultSet rs = st.executeQuery("SELECT * FROM single.z3950_addresses;");
-			
-			while (rs.next()) {
-				   z.setName(rs.getString("name"));
-				   z.setUrl(rs.getString("url"));
-				   z.setPort(rs.getInt("port"));
-				   z.setCollection(rs.getString("collection"));
-				   
-				   addressesList.add(z);
-				   z = new Z3950AddressDTO();
-			}
+			List<String> zlist= addZ3950();//Recebe a lista de novos servidores Z3950
+			List<Z3950AddressDTO> addressesList = new Z3950DAO().getZ3950Servers(con);//Pega os servidores z3950 da tabela	
 			
 			if(!addressesList.isEmpty()) {
-				try {		
-					PreparedStatement pst = con.prepareStatement("DELETE FROM single.z3950_addresses;");
-					pst.execute();					
-					//return pst.executeUpdate() > 0;
-					
-				} catch (Exception e) {
-					throw new DAOException(e);
-				} 
+				new Z3950DAO().deleteAllz3950(con);
 			}
-				
-				//new Z3950DAO().deleteAll();	
-				
-						
 			
-			zlist= addZ3950();//Recebe a lista de novos servidores Z3950
+			for(String newZ3950server: zlist) {//Novos servidores z3950
 			
-			
-			for(String zserver: zlist) {
-			
-					try (PreparedStatement pstz3950 = con.prepareStatement(zserver)) {
-									
+					try (PreparedStatement pstz3950 = con.prepareStatement(newZ3950server)) {
 						pstz3950.executeUpdate();
-					}
-
-				//this.commit(con);
+						con.commit();
+						
+					} catch (SQLException e) {						
+						e.printStackTrace();
+					}			
 			}	
 			
-			for(Z3950AddressDTO z3950: addressesList) {
-				new Z3950DAO().insert(z3950);
-			}
-			
-			
+				new Z3950DAO().insertDTOList(con,addressesList);//servidores z3950 que já estavam na tabela
+
 		}
 		finally {
 			con.close();
@@ -157,17 +126,17 @@ public class Update implements UpdateService {
 	private List<String> addZ3950() {
 				
 			List<String> z3950 = new ArrayList<String>();
-			z3950.add("INSERT INTO z3950_addresses (id, name, url, port, collection) "
-					+ "VALUES ('1','BIBLIOTECA NACIONAL (BIBLIOGRÁFICO)','152.70.215.55','9998','bib';");
-			z3950.add("INSERT INTO z3950_addresses (id, name, url, port, collection) "
-					  + "VALUES ('2','BIBLIOTECA NACIONAL (AUTORIDADE)','152.70.215.55','9998','aut';");
-			z3950.add("INSERT INTO z3950_addresses (id, name, url, port, collection) "
-					  + "VALUES ('3','Universidade Federal de Santa Catarina (UFSC)','z3950.ufsc.br','210','Default';");
-			z3950.add("INSERT INTO z3950_addresses (id, name, url, port, collection) "
-					  + "VALUES ('4','Biblioteca do Senado','biblioteca2.senado.gov.br','9991','sen01';");			
+			z3950.add("INSERT INTO single.z3950_addresses (id, name, url, port, collection) "
+					+ "VALUES ('1','BIBLIOTECA NACIONAL (BIBLIOGRÁFICO)','152.70.215.55','9998','bib');");
+			z3950.add("INSERT INTO single.z3950_addresses (id, name, url, port, collection) "
+					  + "VALUES ('2','BIBLIOTECA NACIONAL (AUTORIDADE)','152.70.215.55','9998','aut');");
+			z3950.add("INSERT INTO single.z3950_addresses (id, name, url, port, collection) "
+					  + "VALUES ('3','Universidade Federal de Santa Catarina (UFSC)','z3950.ufsc.br','210','Default');");
+			z3950.add("INSERT INTO single.z3950_addresses (id, name, url, port, collection) "
+					  + "VALUES ('4','Biblioteca do Senado','biblioteca2.senado.gov.br','9991','sen01');");			
 			
 			
-			return z3950;
+	  return z3950;
 	}
 	
 	

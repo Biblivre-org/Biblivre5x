@@ -169,7 +169,7 @@ public class UpdatesDAO extends AbstractDAO {
 			}
 			
 			if(!addressesList.isEmpty())
-				new Z3950DAO().deleteAll();	
+				//new Z3950DAO().deleteAll();	
 						
 
 				try (PreparedStatement z3950 = con.prepareStatement(

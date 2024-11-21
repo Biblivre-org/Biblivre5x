@@ -24,6 +24,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -186,6 +187,40 @@ public class Z3950DAO extends AbstractDAO {
 		}
 	}
 	
+	
+	
+	public void insertDTOList(Connection con,List<Z3950AddressDTO> ListDto) {
+		
+		try {
+			String sql = "INSERT INTO single.z3950_addresses (name, url, port, collection) VALUES (?, ?, ?, ?);";
+			
+			PreparedStatement pst = con.prepareStatement(sql, Statement	.RETURN_GENERATED_KEYS);
+
+			for(Z3950AddressDTO dto: ListDto ) {
+
+				pst.setString(1, dto.getName());
+				pst.setString(2, dto.getUrl());
+				pst.setInt(3, dto.getPort());
+				pst.setString(4, dto.getCollection());
+
+				pst.executeUpdate();
+
+				ResultSet keys = pst.getGeneratedKeys();
+
+				if (keys.next()) {
+					dto.setId(keys.getInt(1));
+				}
+				
+				con.commit();
+			}
+			
+		} catch (Exception e) {
+			throw new DAOException(e);
+		} 
+	}
+	
+	
+	
 	public boolean saveFromBiblivre3(List<? extends AbstractDTO> dtoList) {
 		Connection con = null;
 		try {
@@ -259,23 +294,16 @@ public class Z3950DAO extends AbstractDAO {
 	}
 	
 	
-	public boolean deleteAll() {
-		Connection con = null;
-
+	public void deleteAllz3950(Connection con) {
+		
 		try {
-			con = this.getConnection();
-
-			String sql = "DELETE FROM z3950_addresses;";
-			
-			PreparedStatement pst = con.prepareStatement(sql);
-			
-			return pst.executeUpdate() > 0;
+			PreparedStatement pst = con.prepareStatement("DELETE FROM single.z3950_addresses;");
+			pst.execute();										
+			con.commit();
 			
 		} catch (Exception e) {
 			throw new DAOException(e);
-		} finally {
-			this.closeConnection(con);
-		}
+		} 
 	}
 	
 
@@ -290,4 +318,30 @@ public class Z3950DAO extends AbstractDAO {
 		
 		return dto;
 	}
+	
+	
+	
+	public List<Z3950AddressDTO> getZ3950Servers(Connection con) throws SQLException {//Pega todos os servidors z3950 e 
+																					  //devolve em uma lista<Z3950AddressDTO>
+	
+		Z3950AddressDTO z = new Z3950AddressDTO();
+		List<Z3950AddressDTO> addressesList = new ArrayList<Z3950AddressDTO>();		
+
+		Statement st = con.createStatement();
+		ResultSet rs = st.executeQuery("SELECT * FROM single.z3950_addresses;");
+		
+		while (rs.next()) {
+			   z.setName(rs.getString("name"));
+			   z.setUrl(rs.getString("url"));
+			   z.setPort(rs.getInt("port"));
+			   z.setCollection(rs.getString("collection"));
+			   
+			   addressesList.add(z);
+			   z = new Z3950AddressDTO();
+		}
+		
+		return addressesList;
+	}
+	
+	
 }
