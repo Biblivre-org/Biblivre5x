@@ -93,7 +93,6 @@ public class Update implements UpdateService {
 	
 	public void insertNewsZ3950Addresses(Connection con) throws SQLException{
 		
-		try {
 			List<String> zlist= addZ3950();//Recebe a lista de novos servidores Z3950
 			List<Z3950AddressDTO> addressesList = new Z3950DAO().getZ3950Servers(con);//Pega os servidores z3950 da tabela	
 			
@@ -112,12 +111,9 @@ public class Update implements UpdateService {
 					}			
 			}	
 			
-				new Z3950DAO().insertDTOList(con,addressesList);//servidores z3950 que já estavam na tabela
+		  new Z3950DAO().insertDTOList(con,addressesList);//servidores z3950 que já estavam na tabela
 
-		}
-		finally {
-			con.close();
-		}
+
 	}
 	
 	

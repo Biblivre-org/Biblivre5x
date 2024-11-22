@@ -145,56 +145,6 @@ public class UpdatesDAO extends AbstractDAO {
 		}
 	}
 	
-	//dao.insertNewsZ3950_addresses(getVersion(), con);
-	
-	public void insertNewsZ3950_addresses(String version, Connection con) throws SQLException {
-		try {
-			Z3950DAO z3050Insert = new Z3950DAO();
-			Z3950AddressDTO z = new Z3950AddressDTO();
-			List<Z3950AddressDTO> addressesList = new ArrayList<Z3950AddressDTO>();
-
-			String sql = "SELECT * FROM single.z3950_addresses;";
-
-			Statement st = con.createStatement();
-			ResultSet rs = st.executeQuery(sql);
-			
-			while (rs.next()) {
-				   z.setName(rs.getString("name"));
-				   z.setUrl(rs.getString("url"));
-				   z.setPort(rs.getInt("port"));
-				   z.setCollection(rs.getString("collection"));
-				   
-				   addressesList.add(z);
-				   z = new Z3950AddressDTO();
-			}
-			
-			if(!addressesList.isEmpty())
-				//new Z3950DAO().deleteAll();	
-						
-
-				try (PreparedStatement z3950 = con.prepareStatement(
-						"INSERT INTO versions (z3950_addresses) VALUES (?,?,?,?);")) {
-
-					PreparedStatementUtil.setAllParameters(z3950, version);
-					z3950.executeUpdate();
-				}
-
-				this.commit(con);
-				
-			
-			for(Z3950AddressDTO z3950: addressesList) {				
-				
-				new Z3950DAO().insert(z3950);
-			}
-			
-			
-		}
-		finally {
-			this.closeConnection(con);
-		}
-	}
-	
-	
 	
 	
 }
