@@ -122,14 +122,15 @@ public class Update implements UpdateService {
 	private List<String> addZ3950() {
 				
 			List<String> z3950 = new ArrayList<String>();
+			/* Aguardando voltar a funcionar
 			z3950.add("INSERT INTO single.z3950_addresses (id, name, url, port, collection) "
-					+ "VALUES ('1','BIBLIOTECA NACIONAL (BIBLIOGRÁFICO)','152.70.215.55','9998','bib');");
+					+ "VALUES ('1','3 - BIBLIOTECA NACIONAL (BIBLIOGRÁFICO)','152.70.215.55','9998','bib');");
 			z3950.add("INSERT INTO single.z3950_addresses (id, name, url, port, collection) "
-					  + "VALUES ('2','BIBLIOTECA NACIONAL (AUTORIDADE)','152.70.215.55','9998','aut');");
+					  + "VALUES ('2','4 - BIBLIOTECA NACIONAL (AUTORIDADE)','152.70.215.55','9998','aut');"); */
 			z3950.add("INSERT INTO single.z3950_addresses (id, name, url, port, collection) "
-					  + "VALUES ('3','Universidade Federal de Santa Catarina (UFSC)','z3950.ufsc.br','210','Default');");
+					  + "VALUES ('3','1 - Universidade Federal de Santa Catarina (UFSC)','z3950.ufsc.br','210','Default');");
 			z3950.add("INSERT INTO single.z3950_addresses (id, name, url, port, collection) "
-					  + "VALUES ('4','Biblioteca do Senado','biblioteca2.senado.gov.br','9991','sen01');");			
+					  + "VALUES ('4','2 - Biblioteca do Senado','biblioteca2.senado.gov.br','9991','sen01');");			
 			
 			
 	  return z3950;
