@@ -590,11 +590,9 @@ public class ReportsDAO extends AbstractDAO {
 			ResultSet rs = con.createStatement().executeQuery(firstSql.toString());
 			
 			StringBuilder inativos = new StringBuilder();
-			inativos.append("SELECT count(name) as total,id ");
+			inativos.append("SELECT count(id) as total ");
 			inativos.append("FROM users ");			
 			inativos.append("WHERE status = '" + UserStatus.INACTIVE.toString() + "' ");
-			inativos.append("GROUP BY name, id ");
-			inativos.append("ORDER BY name;");
 			
 			ResultSet rsInativos = con.createStatement().executeQuery(inativos.toString());
 														
