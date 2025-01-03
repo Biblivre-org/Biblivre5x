@@ -20,7 +20,8 @@ public class Update implements UpdateService {
 
 	public void doUpdate(Connection connection) throws SQLException {
 		_addTranslations();
-		//insertNewsZ3950Addresses(connection);
+		//insertNewsZ3950Addresses(connection); //Estudar uma solução mais eficiente pois quando o usuário 
+		//restaura a base, não atualiza os servidores z3950
 	}
 
 	@Override
