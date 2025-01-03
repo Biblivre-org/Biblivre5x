@@ -590,11 +590,34 @@ public class ReportsDAO extends AbstractDAO {
 			ResultSet rs = con.createStatement().executeQuery(firstSql.toString());
 			
 			StringBuilder inativos = new StringBuilder();
-			inativos.append("SELECT name, id, created, modified ");
-			inativos.append("FROM single.users ");
+			inativos.append("SELECT count(name) as total,id ");
+			inativos.append("FROM users ");			
 			inativos.append("WHERE status = '" + UserStatus.INACTIVE.toString() + "' ");
-
+			inativos.append("GROUP BY name, id ");
+			inativos.append("ORDER BY name;");
+			
 			ResultSet rsInativos = con.createStatement().executeQuery(inativos.toString());
+														
+			while (rsInativos.next()) {				
+				final Integer count = rsInativos.getInt("total");
+				dto.getTypesMap().put("Inativos", count);
+
+				StringBuilder SQLinativos = new StringBuilder();
+				SQLinativos.append("SELECT name, id, created, modified ");
+				SQLinativos.append("FROM users ");
+				SQLinativos.append("WHERE status = '" + UserStatus.INACTIVE.toString() + "' ");
+
+				ResultSet leitorInativo = con.createStatement().executeQuery(SQLinativos.toString());
+				List<String> dataList = new ArrayList<String>();
+				while (leitorInativo.next()) {
+					dataList.add(leitorInativo.getString("name") + "\t"
+							+ leitorInativo.getInt("id") + "\t"
+							+ dd_MM_yyyy.format(leitorInativo.getDate("created")) + "\t"
+							+ dd_MM_yyyy.format(leitorInativo.getDate("modified")) + "\n");
+				}
+				dto.getData().put("Inativos", dataList);
+			}
+			
 			
 
 			while (rs.next()) {
