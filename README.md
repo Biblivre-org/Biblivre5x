@@ -1,6 +1,6 @@
 # Biblivre-5
 
-Biblioteca Livre Internacional 5.0.5
+Biblioteca Livre Internacional 5.1.31
 
 ## Build e deploy
 
