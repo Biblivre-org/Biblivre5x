@@ -590,9 +590,9 @@ public class ReportsDAO extends AbstractDAO {
 			ResultSet rs = con.createStatement().executeQuery(firstSql.toString());
 			
 			StringBuilder inativos = new StringBuilder();
-			inativos.append("SELECT name, id, created, modified from users ");
-			inativos.append("FROM users u");
-			inativos.append("WHERE u.status = '" + UserStatus.INACTIVE.toString() + "' ");
+			inativos.append("SELECT name, id, created, modified ");
+			inativos.append("FROM single.users ");
+			inativos.append("WHERE status = '" + UserStatus.INACTIVE.toString() + "' ");
 
 			ResultSet rsInativos = con.createStatement().executeQuery(inativos.toString());
 			
