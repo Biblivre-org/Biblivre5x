@@ -20,7 +20,7 @@ public class Update implements UpdateService {
 
 	public void doUpdate(Connection connection) throws SQLException {
 		_addTranslations();
-		insertNewsZ3950Addresses(connection);
+		//insertNewsZ3950Addresses(connection);
 	}
 
 	@Override
