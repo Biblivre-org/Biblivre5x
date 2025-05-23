@@ -46,6 +46,7 @@ import com.lowagie.text.pdf.PdfContentByte;
 import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
+import com.spire.pdf.PdfDocument;
 
 import biblivre.cataloging.RecordBO;
 import biblivre.cataloging.RecordDTO;
@@ -71,6 +72,16 @@ import biblivre.marc.MarcDataReader;
 import biblivre.marc.MarcUtils;
 import biblivre.marc.MaterialType;
 import biblivre.marc.RecordStatus;
+
+import com.spire.pdf.FileFormat;
+import com.spire.pdf.PdfDocument;
+
+//import com.itextpdf.kernel.pdf.PdfDocument;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
 
 public class HoldingBO extends RecordBO {
 
@@ -311,7 +322,9 @@ public class HoldingBO extends RecordBO {
 					adapter.getVerticalMargin(), adapter.getVerticalMargin());
 			int horizontalAlignment = Element.ALIGN_CENTER;
 			File file = File.createTempFile("biblivre_label_", ".pdf");
+				
 			fos = new FileOutputStream(file);
+			
 			PdfWriter writer = PdfWriter.getInstance(document, fos);
 			PdfPTable table = new PdfPTable(adapter.getColumns());
 
@@ -337,6 +350,24 @@ public class HoldingBO extends RecordBO {
 			writer.flush();
 			document.close();
 
+			
+		
+			
+	        try (InputStream inputStream = new FileInputStream(file)) {
+	       
+	            PdfDocument pdfDocument = new PdfDocument(inputStream);
+
+	            pdfDocument.saveToFile("C:\\Files\\labelPdfToDoc.docx", FileFormat.DOCX);
+
+	            
+	            // Não se esqueça de fechar o PdfDocument
+	            pdfDocument.close();
+	        }
+	        
+	        
+	       
+			
+			
 			return new DiskFile(file, "application/pdf");
 		} catch (Exception e) {
 			this.logger.error(e.getMessage(), e);

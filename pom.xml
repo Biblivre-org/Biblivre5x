@@ -50,6 +50,13 @@
 			<id>clojars.org</id>
 			<url>http://clojars.org/repo</url>
 		</repository>
+		
+	<repository>
+        	<id>com.e-iceblue</id>
+        	<name>e-iceblue</name>
+        	<url>https://repo.e-iceblue.com/nexus/content/groups/public/</url>
+    </repository>
+		
 	</repositories>
 
 	<dependencies>
@@ -266,6 +273,15 @@
 			<artifactId>HikariCP</artifactId>
 			<version>3.3.1</version>
 		</dependency>
+		
+		
+		<dependency>
+    		<groupId>e-iceblue</groupId>
+    		<artifactId>spire.pdf</artifactId>
+    		<version>11.3.5</version>
+       </dependency>
+		
+		
 		<!-- / -->
 
 	</dependencies>
