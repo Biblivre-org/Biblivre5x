@@ -66,7 +66,8 @@ public class Constants {
 	public static final String CONFIG_PGDUMP_PATH = "general.pg_dump_path";
 	public static final String CONFIG_PSQL_PATH = "general.psql_path";
 	public static final String CONFIG_BACKUP_PATH = "general.backup_path";
-
+	public static final String CONFIG_DOCUMENT_FORMAT_PDF = "general.document.format.pdf";
+	
 	public static final String CONFIG_SEARCH_RESULTS_PER_PAGE = "search.results_per_page";
 	public static final String CONFIG_SEARCH_RESULT_LIMIT = "search.result_limit";
 

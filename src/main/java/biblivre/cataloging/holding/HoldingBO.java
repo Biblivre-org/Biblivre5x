@@ -22,12 +22,14 @@ package biblivre.cataloging.holding;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.commons.lang3.StringUtils;
 import org.marc4j.marc.DataField;
 import org.marc4j.marc.MarcFactory;
@@ -310,8 +312,10 @@ public class HoldingBO extends RecordBO {
 		return true;
 	}
 	
-	public DiskFile printLabelsToPDF(List<LabelDTO> labels, LabelPrintDTO printDTO) {
+	public List<DiskFile> printLabelsToPDF(List<LabelDTO> labels, LabelPrintDTO printDTO) {
 		OutputStream fos = null;
+		String schema = this.getSchema();
+		boolean usePdfFormat = Configurations.getBoolean(schema, Constants.CONFIG_DOCUMENT_FORMAT_PDF);
 
 		try {
 			ITextPimacoTagSheetAdapter adapter =
@@ -321,26 +325,21 @@ public class HoldingBO extends RecordBO {
 					adapter.getHorizontalMargin(), adapter.getHorizontalMargin(),
 					adapter.getVerticalMargin(), adapter.getVerticalMargin());
 			int horizontalAlignment = Element.ALIGN_CENTER;
-			File file = File.createTempFile("biblivre_label_", ".pdf");
-				
+			
+			File file = File.createTempFile("biblivre_label_", ".pdf");				
 			fos = new FileOutputStream(file);
 			
 			PdfWriter writer = PdfWriter.getInstance(document, fos);
 			PdfPTable table = new PdfPTable(adapter.getColumns());
 
 			document.open();
-
 			table.setWidthPercentage(100f);
-
 			table.getDefaultCell().setBorder(Rectangle.NO_BORDER);
-
 			float fixedHeight = adapter.getCellHeight();
-
 			_skipOffset(printDTO, horizontalAlignment, table, fixedHeight);
 
 			for (LabelDTO ldto : labels) {
-				_printOddLabels(printDTO, fixedHeight, writer, table,
-						horizontalAlignment, ldto);
+				_printOddLabels(printDTO, fixedHeight, writer, table,horizontalAlignment, ldto);
 				_printEvenLabels(fixedHeight, table, ldto, horizontalAlignment);
 			}
 
@@ -349,26 +348,31 @@ public class HoldingBO extends RecordBO {
 			document.add(table);
 			writer.flush();
 			document.close();
-
 			
-		
+			List<DiskFile> docX = new ArrayList<DiskFile>();
 			
-	        try (InputStream inputStream = new FileInputStream(file)) {
-	       
+			// Se a configuração for PDF (true), retorna apenas o arquivo PDF
+			if (usePdfFormat) {
+				docX.add(new DiskFile(file, "application/pdf"));
+				return docX;
+			}
+			
+			// Se a configuração for WORD (false), converte para DOCX e retorna
+			File fileDoc = File.createTempFile("biblivre_label_", ".doc");
+			
+	        try (InputStream inputStream = new FileInputStream(file)) {      
+	        	
 	            PdfDocument pdfDocument = new PdfDocument(inputStream);
-
-	            pdfDocument.saveToFile("C:\\Files\\labelPdfToDoc.docx", FileFormat.DOCX);
-
-	            
-	            // Não se esqueça de fechar o PdfDocument
+	            pdfDocument.saveToFile(fileDoc.getPath(), FileFormat.DOCX);
 	            pdfDocument.close();
+	            
+	            // Se for WORD, exclui o arquivo PDF temporário
+	            file.delete();
 	        }
 	        
-	        
-	       
+	        docX.add(new DiskFile(fileDoc, "application/doc"));
+			return docX;
 			
-			
-			return new DiskFile(file, "application/pdf");
 		} catch (Exception e) {
 			this.logger.error(e.getMessage(), e);
 		} finally {

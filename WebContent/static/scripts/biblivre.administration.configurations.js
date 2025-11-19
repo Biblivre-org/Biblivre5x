@@ -73,6 +73,16 @@ Configurations.save = function(button) {
 	if (z3950Checkbox.size()) {
 		result[z3950Checkbox.attr('name')] = z3950Checkbox.is(':checked');
 	}
+	
+	// Tratamento para os radio buttons de formato de documento (PDF/WORD)
+	var docFormatRadios = $('input[id="docTrue"], input[id="docFalse"]');
+	if (docFormatRadios.size()) {
+		var docName = docFormatRadios.first().attr('name');
+		var selectedValue = $('input[id="docTrue"]:checked, input[id="docFalse"]:checked').val();
+		if (selectedValue) {
+			result[docName] = selectedValue;
+		}
+	}
 
 	var multiSchema = $('#multi_schema_active');
 	var multiSchemaChecked = false;

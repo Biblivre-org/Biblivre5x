@@ -105,7 +105,7 @@ public class PgDumpCommand {
 			result.add(Option.TABLE.toString());
 			result.add(getTablePattern());
 		}
-
+System.out.println("PG_Dump: " + result);
 		return result;
 	}
 

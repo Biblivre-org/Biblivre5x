@@ -41,9 +41,10 @@ public class Handler extends AbstractHandler {
 	public void save(ExtendedRequest request, ExtendedResponse response) {
 		String schema = request.getSchema();
 		int loggedUser = request.getLoggedUserId();
-		String language = request.getLanguage();
+		String language = request.getLanguage(); 
 
 		String configurations = request.getString("configurations", "{}");
+		
 		List<ConfigurationsDTO> configs = new ArrayList<ConfigurationsDTO>();
 		
 		try {

@@ -556,6 +556,9 @@
 *administration.permissions.items.administration_accesscards_list = Listar cartões de acesso
 *administration.permissions.items.administration_accesscards_save = Incluir cartões de acesso
 *administration.permissions.items.administration_accesscards_delete = Excluir cartões de acesso
+
+*administration.configuration.title.general.document_format_pdf = Usar formato PDF para documentos
+*administration.configuration.description.general.document_format_pdf = Esta configuração define se os documentos gerados pelo sistema serão em formato PDF (Sim) ou WORD (Não). Selecione "Sim" para usar PDF ou "Não" para usar WORD.
 *administration.permissions.items.administration_reports = Gerar Relatórios
 *administration.permissions.items.administration_datamigration = Importar dados do Biblivre 3
 

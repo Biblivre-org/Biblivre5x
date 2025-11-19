@@ -18,7 +18,7 @@ public class Update implements UpdateService {
 
 	@Override
 	public String getVersion() {
-		return "6.0.0-1.0.1-alpha";
+		return "5.1.23";
 	}
 
 	private void _addTranslations() throws SQLException {

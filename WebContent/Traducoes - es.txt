@@ -302,6 +302,8 @@
 *administration.configuration.title.general.psql_path = Camino para el programa psql
 *administration.configuration.title.general.subtitle = Subtítulo de la biblioteca
 *administration.configuration.title.general.title = Nombre de la biblioteca
+*administration.configuration.title.general.document_format_pdf = Usar formato PDF para documentos
+*administration.configuration.description.general.document_format_pdf = Esta configuración define si los documentos generados por el sistema estarán en formato PDF (Sí) o WORD (No). Seleccione "Sí" para usar PDF o "No" para usar WORD.
 
 *administration.configuration.title.search.distributed_search_limit = Límite de resultados para búsquedas distribuidas
 *administration.configuration.title.search.result_limit = Límite de resultados

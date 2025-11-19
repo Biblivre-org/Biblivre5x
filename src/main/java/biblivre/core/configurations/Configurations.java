@@ -97,7 +97,8 @@ public class Configurations extends StaticBO {
 	public static boolean getBoolean(String schema, String key) {
 		String value = Configurations.getValue(schema, key);
 		
-		return value.equals("true");
+		// Melhorar a verificação para aceitar diferentes formatos de booleano
+		return "true".equalsIgnoreCase(value) || "yes".equalsIgnoreCase(value) || "1".equals(value);
 	}
 	
 	public static List<Integer> getIntArray(String schema, String key, String def) {
@@ -179,6 +180,7 @@ public class Configurations extends StaticBO {
 
 	public static void save(String schema, List<ConfigurationsDTO> configs, int loggedUser) {
 		ConfigurationsDTO multiSchemaConfig = null;
+		boolean resetCache = false;
 		
 		for (Iterator<ConfigurationsDTO> it = configs.iterator(); it.hasNext();) {
 			ConfigurationsDTO configDto = it.next();
@@ -186,6 +188,10 @@ public class Configurations extends StaticBO {
 				multiSchemaConfig = configDto;
 				it.remove();
 				break;
+			}
+			// Verificar se alguma configuração importante está sendo alterada
+			if (configDto.getKey().equals(Constants.CONFIG_DOCUMENT_FORMAT_PDF)) {
+				resetCache = true;
 			}
 		}
 		
@@ -205,10 +211,14 @@ public class Configurations extends StaticBO {
 		ConfigurationsDAO dao = ConfigurationsDAO.getInstance(schema);
 
 		if (dao.save(configs, loggedUser)) {
-			HashMap<String, ConfigurationsDTO> map = Configurations.getMap(schema);
-
-			for (ConfigurationsDTO config : configs) {
-				map.put(config.getKey(), config);
+			// Se alguma configuração importante foi alterada, resetamos o cache
+			if (resetCache) {
+				Configurations.reset();
+			} else {
+				HashMap<String, ConfigurationsDTO> map = Configurations.getMap(schema);
+				for (ConfigurationsDTO config : configs) {
+					map.put(config.getKey(), config);
+				}
 			}
 		}
 	}

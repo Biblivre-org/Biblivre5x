@@ -521,6 +521,49 @@
 			</div>
 		</fieldset>
 		
+		
+	
+	
+<fieldset>
+    <%
+    key = Constants.CONFIG_DOCUMENT_FORMAT_PDF;
+    active = Configurations.getBoolean(schema, key);
+    request.setAttribute("key", key);
+    request.setAttribute("active", active);
+    %>
+    <legend><i18n:text key="administration.configuration.title.${key}" /></legend><%-- administration.configuration.title.general.document.format.pdf --%>
+    <div class="description">
+        <i18n:text key="administration.configuration.description.${key}" param1="${schema}"/>
+    </div>
+    <div class="fields">
+        <div>
+            <div class="label"><i18n:text key="administration.configuration.current_value" /></div>
+            <div class="value">
+                <c:choose>
+                    <c:when test="${active}">PDF</c:when>
+                    <c:otherwise>WORD</c:otherwise>
+                </c:choose>
+            </div>
+            <div class="clear"></div>
+        </div>
+        <div>
+            <div class="label"><i18n:text key="administration.configuration.new_value" /></div>
+            <div class="value">
+                <input type="radio" id="docTrue" name="${key}" value="true"
+                    <c:if test="${active == true}">checked="checked"</c:if> style="width: auto;" />
+                <label for="docTrue">PDF</label>
+
+                <input type="radio" id="docFalse" name="${key}" value="false"
+                    <c:if test="${active == false}">checked="checked"</c:if> style="width: auto;" />
+                <label for="docFalse">WORD</label>
+            </div>
+            <div class="clear"></div>
+        </div>
+    </div>
+</fieldset>
+	
+		
+		
 		<div class="footer_buttons">
 			<a class="button center main_button" onclick="Configurations.save(this);"><i18n:text key="common.save" /></a>
 		</div>		

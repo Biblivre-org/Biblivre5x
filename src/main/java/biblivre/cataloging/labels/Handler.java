@@ -118,12 +118,15 @@ public class Handler extends AbstractHandler {
 			labels.add(label);
 		}
 		
-		final DiskFile exportFile = hbo.printLabelsToPDF(labels, dto);
+		// Obter a lista de arquivos (PDF ou WORD) com base na configuração
+		List<DiskFile> docFiles = hbo.printLabelsToPDF(labels, dto);
 		hbo.markAsPrinted(dto.getIds());
-
-		this.setFile(exportFile);
-
-		this.setCallback(exportFile::delete);
+			
+		// Configurar o arquivo para download
+		for(DiskFile file: docFiles) {
+			this.setFile(file);
+			this.setCallback(file::delete);
+		}
 	}
 	
 	public void printText(ExtendedRequest request, ExtendedResponse response) {
