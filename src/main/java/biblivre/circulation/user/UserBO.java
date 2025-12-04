@@ -20,7 +20,9 @@
 package biblivre.circulation.user;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -42,6 +44,8 @@ import com.lowagie.text.pdf.PdfContentByte;
 import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
+import com.spire.pdf.FileFormat;
+import com.spire.pdf.PdfDocument;
 
 import biblivre.administration.usertype.UserTypeBO;
 import biblivre.administration.usertype.UserTypeDTO;
@@ -49,8 +53,10 @@ import biblivre.core.AbstractBO;
 import biblivre.core.AbstractDTO;
 import biblivre.core.DTOCollection;
 import biblivre.core.LabelPrintDTO;
+import biblivre.core.configurations.Configurations;
 import biblivre.core.file.DiskFile;
 import biblivre.core.translations.TranslationsMap;
+import biblivre.core.utils.Constants;
 
 public class UserBO extends AbstractBO {
 
@@ -126,6 +132,7 @@ public class UserBO extends AbstractBO {
 	public DiskFile printUserCardsToPDF(LabelPrintDTO dto, TranslationsMap i18n) {
 		Document document = new Document();
 		FileOutputStream fos = null;
+		boolean usePdfFormat = Configurations.getBoolean(schema, Constants.CONFIG_DOCUMENT_FORMAT_PDF);
 
 		try {
 			File file = File.createTempFile("biblivre_user_cards_", ".pdf");
@@ -215,8 +222,43 @@ public class UserBO extends AbstractBO {
 			writer.flush();
 			document.close();
 			fos.close();
+			
+	//Transformação para WORD			
+			
+			
+			//List<DiskFile> docX = new ArrayList<DiskFile>();
+			
+			// Se a configuração for PDF (true), retorna apenas o arquivo PDF
+			if (usePdfFormat) {
+				return new DiskFile(file, "application/pdf");
+				//docX.add(new DiskFile(file, "application/pdf"));				
+				//return docX;
+			}
+			
+			// Se a configuração for WORD (false), converte para DOCX e retorna
+			File fileDoc = File.createTempFile("biblivre_user_cards_", ".doc");
+			
+	        try (InputStream inputStream = new FileInputStream(file)) {      
+	        	
+	            PdfDocument pdfDocument = new PdfDocument(inputStream);
+	            pdfDocument.saveToFile(fileDoc.getPath(), FileFormat.DOCX);
+	            pdfDocument.close();
+	            
+	            // Se for WORD, exclui o arquivo PDF temporário
+	            file.delete();
+	        }
+	        
+	        //docX.add(new DiskFile(fileDoc, "application/doc"));
+			return new DiskFile(fileDoc, "application/doc") ;
+			
+			
+			
+			
+			
+			
+			
 
-			return new DiskFile(file, "application/pdf");
+			
 	      } catch (Exception var30) {
 	          this.logger.error(var30.getMessage(), var30);
 		} finally {
