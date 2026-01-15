@@ -59,6 +59,10 @@ public class ReservationBO extends AbstractBO {
 		return bo;
 	}
 	
+	public boolean isThereAReservation(Integer id) {
+		return this.dao.isThereAReservationHolding(id);
+	}
+	
 	public boolean deleteExpired() {
 		return this.dao.deleteExpired();
 	}
@@ -177,9 +181,20 @@ public class ReservationBO extends AbstractBO {
 
 		return count < limit;
 	}
+	
+	public boolean checkPreviousHoldingReservation(RecordDTO record) {//Verifica se já existe reserva ativa do referido exemplar
+		ReservationBO instance = this.getInstance(this.getSchema()); 
+		boolean isthereReservation = instance.isThereAReservation(record.getId());
+
+		if(isthereReservation)
+			throw new ValidationException("cataloging.reservation.error.onhold");
+		
+		return isthereReservation;
+	}
 
 	public int reserve(RecordDTO record, UserDTO user, int createdBy) {
 		this.checkReservation(record, user);
+		this.checkPreviousHoldingReservation(record);
 
 		ReservationDTO reservation = new ReservationDTO();
 		reservation.setRecordId(record.getId());

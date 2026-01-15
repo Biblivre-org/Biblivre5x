@@ -74,8 +74,15 @@ public class CalendarUtils {
 		cal.setWorkingWeek(new JodaWorkingWeek(week));
 		cal.setStartDate(new LocalDate(lendingDate));
 		LocalDate newCurrent = cal.moveByDays(days).getCurrentBusinessDate();
-		//LocalDate newCurrent = cal.moveByBusinessDays(days).getCurrentBusinessDate();
-		return newCurrent.toDate();
+		
+		// 🔹 Junta data calculada + hora do lendingDate
+	    Calendar newDateReservation = Calendar.getInstance();
+	    newDateReservation.setTime(lendingDate); // pega hora, minuto, segundo
+	    newDateReservation.set(Calendar.YEAR, newCurrent.getYear());
+	    newDateReservation.set(Calendar.MONTH, newCurrent.getMonthOfYear() - 1); // Calendar é 0-based
+	    newDateReservation.set(Calendar.DAY_OF_MONTH, newCurrent.getDayOfMonth());
+
+	    return newDateReservation.getTime();
 	}
 	
 	public static int calculateDeteDifference(Date initialDate, Date finalDate) {

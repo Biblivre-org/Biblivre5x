@@ -347,5 +347,31 @@ public class ReservationDAO extends AbstractDAO {
 
 		return map;
 	}
+	
+	
+	public boolean isThereAReservationHolding(Integer id) {
+		Connection con = null;
+		try {
+			con = this.getConnection();
+
+			String sql = "SELECT * FROM reservations WHERE record_id = ? AND expires > localtimestamp;";
+
+			PreparedStatement ppst = con.prepareStatement(sql);
+			ppst.setInt(1, id);
+
+			ResultSet rs = ppst.executeQuery();
+			if (rs.next()) {
+				ReservationDTO rdto = this.populateDTO(rs);
+				
+				if(rdto.getRecordId().equals(id) )
+					return true;
+			}
+		} catch (Exception e) {
+			throw new DAOException(e);
+		} finally {
+			this.closeConnection(con);
+		}
+		return false;
+	}
 
 }

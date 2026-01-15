@@ -45,6 +45,13 @@ public class Update implements UpdateService {
 			put("en-US", "Choose which document format will be used for printing ID cards and labels.");
 		}});
 		
+		put("cataloging.reservation.error.onhold", new HashMap() {{
+			put("pt-BR", "Este exemplar já se encontra reservado.");
+			put("es", "Este ejemplar ya está reservado.");
+			put("en-US", "This item is already on hold.");
+		}});	
+		
+		
 	}};
 		
 
