@@ -323,7 +323,7 @@
 											<label><i18n:text key="circulation.user_field.id" /></label>: {$T.info.user.enrollment}<br/>
 											<label><i18n:text key="circulation.user_field.type" /></label>: {$T.info.user.type_name}<br/>
 											<label><i18n:text key="circulation.reservation.reserve_date" /></label>: {_d($T.info.reservation.created, 'f')}<br/>
-											<label><i18n:text key="circulation.reservation.expiration_date" /></label>: {_d($T.info.reservation.expires, 'D')}<br/>
+											<label><i18n:text key="circulation.reservation.expiration_date" /></label>: {_d($T.info.reservation.expires, 'f')}<br/>
 										</div>
 									{#/foreach}
 								{#/if}								
