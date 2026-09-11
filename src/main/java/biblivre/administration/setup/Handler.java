@@ -287,6 +287,73 @@ public class Handler extends AbstractHandler {
 		String schemasMap = request.getString("schemas_map");
 		String type = request.getString("type", "partial");
 
+		this.executeRestore(request, response, schema, filename, mediaFileBackup, selectedBackupSchema, schemasMap, type);
+	}
+
+	public void restoreFromCloud(ExtendedRequest request, ExtendedResponse response) {
+		String schema = request.getSchema();
+		String service = request.getString("service");
+		String filename = request.getString("filename");
+
+		try {
+			if (StringUtils.isBlank(service) || StringUtils.isBlank(filename)) {
+				this.setMessage(ActionResult.WARNING, "error.invalid_parameters");
+				this.json.put("success", false);
+				return;
+			}
+
+			RestoreBO bo = RestoreBO.getInstance(schema);
+			File downloaded = bo.downloadBackupFromCloud(service, filename);
+			RestoreDTO dto = bo.getRestoreDTO(downloaded.getName());
+
+			this.json.put("success", true);
+			this.json.put("file", downloaded.getName());
+			this.json.put("metadata", dto.toJSONObject());
+		} catch (ValidationException e) {
+			this.setMessage(e);
+			try {
+				this.json.put("success", false);
+			} catch (JSONException ex) {}
+		} catch (Exception e) {
+			this.setMessage(ActionResult.WARNING, "administration.maintenance.backup.error.cloud_download_failed");
+			try {
+				this.json.put("success", false);
+			} catch (JSONException ex) {}
+		}
+	}
+
+	public void listCloudBackups(ExtendedRequest request, ExtendedResponse response) {
+		String schema = request.getSchema();
+		String service = request.getString("service");
+
+		try {
+			if (StringUtils.isBlank(service)) {
+				this.setMessage(ActionResult.WARNING, "error.invalid_parameters");
+				this.json.put("success", false);
+				return;
+			}
+
+			RestoreBO bo = RestoreBO.getInstance(schema);
+			List<String> backups = bo.listCloudBackups(service);
+
+			this.json.put("success", true);
+			for (String name : backups) {
+				this.json.append("backups", name);
+			}
+		} catch (ValidationException e) {
+			this.setMessage(e);
+			try {
+				this.json.put("success", false);
+			} catch (JSONException ex) {}
+		} catch (Exception e) {
+			this.setMessage(ActionResult.WARNING, "administration.maintenance.backup.error.cloud_list_failed");
+			try {
+				this.json.put("success", false);
+			} catch (JSONException ex) {}
+		}
+	}
+
+	private void executeRestore(ExtendedRequest request, ExtendedResponse response, String schema, String filename, String mediaFileBackup, String selectedBackupSchema, String schemasMap, String type) {
 		boolean success = false;
 		try {
 			State.start();

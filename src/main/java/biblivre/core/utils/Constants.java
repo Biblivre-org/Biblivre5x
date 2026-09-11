@@ -68,6 +68,53 @@ public class Constants {
 	public static final String CONFIG_BACKUP_PATH = "general.backup_path";
 	public static final String CONFIG_DOCUMENT_FORMAT_PDF = "general.document.format.pdf";
 	
+	// Cloud and Email Backup Configurations
+	public static final String CONFIG_BACKUP_EMAIL_ENABLED = "administration.backup.email.enabled";
+	public static final String CONFIG_BACKUP_EMAIL_HOST = "administration.backup.email.host";
+	public static final String CONFIG_BACKUP_EMAIL_PORT = "administration.backup.email.port";
+	public static final String CONFIG_BACKUP_EMAIL_USER = "administration.backup.email.user";
+	public static final String CONFIG_BACKUP_EMAIL_PASSWORD = "administration.backup.email.password";
+	public static final String CONFIG_BACKUP_EMAIL_FROM = "administration.backup.email.from";
+	public static final String CONFIG_BACKUP_EMAIL_TO = "administration.backup.email.to";
+	public static final String CONFIG_BACKUP_EMAIL_SSL = "administration.backup.email.ssl";
+
+	public static final String CONFIG_BACKUP_GOOGLE_DRIVE_ENABLED = "administration.backup.google_drive.enabled";
+	public static final String CONFIG_BACKUP_GOOGLE_DRIVE_CLIENT_ID = "administration.backup.google_drive.client_id";
+	public static final String CONFIG_BACKUP_GOOGLE_DRIVE_CLIENT_SECRET = "administration.backup.google_drive.client_secret";
+	public static final String CONFIG_BACKUP_GOOGLE_DRIVE_REFRESH_TOKEN = "administration.backup.google_drive.refresh_token";
+	public static final String CONFIG_BACKUP_GOOGLE_DRIVE_ACCOUNT_EMAIL = "administration.backup.google_drive.account_email";
+
+	public static final String CONFIG_BACKUP_ONEDRIVE_ENABLED = "administration.backup.onedrive.enabled";
+	public static final String CONFIG_BACKUP_ONEDRIVE_CLIENT_ID = "administration.backup.onedrive.client_id";
+	public static final String CONFIG_BACKUP_ONEDRIVE_CLIENT_SECRET = "administration.backup.onedrive.client_secret";
+	public static final String CONFIG_BACKUP_ONEDRIVE_REFRESH_TOKEN = "administration.backup.onedrive.refresh_token";
+
+	public static final String CONFIG_BACKUP_DROPBOX_ENABLED = "administration.backup.dropbox.enabled";
+	public static final String CONFIG_BACKUP_DROPBOX_APP_KEY = "administration.backup.dropbox.app_key";
+	public static final String CONFIG_BACKUP_DROPBOX_APP_SECRET = "administration.backup.dropbox.app_secret";
+	public static final String CONFIG_BACKUP_DROPBOX_ACCESS_TOKEN = "administration.backup.dropbox.access_token";
+	public static final String CONFIG_BACKUP_DROPBOX_REFRESH_TOKEN = "administration.backup.dropbox.refresh_token";
+	public static final String CONFIG_BACKUP_DROPBOX_ACCESS_TOKEN_EXPIRES_AT = "administration.backup.dropbox.access_token_expires_at";
+	public static final String CONFIG_BACKUP_DROPBOX_ACCOUNT_EMAIL = "administration.backup.dropbox.account_email";
+	public static final String CONFIG_BACKUP_BOX_ENABLED = "administration.backup.box.enabled";
+	public static final String CONFIG_BACKUP_BOX_CLIENT_ID = "administration.backup.box.client_id";
+	public static final String CONFIG_BACKUP_BOX_CLIENT_SECRET = "administration.backup.box.client_secret";
+	public static final String CONFIG_BACKUP_BOX_ACCESS_TOKEN = "administration.backup.box.access_token";
+	public static final String CONFIG_BACKUP_BOX_REFRESH_TOKEN = "administration.backup.box.refresh_token";
+	public static final String CONFIG_BACKUP_BOX_FOLDER_ID = "administration.backup.box.folder_id";
+	public static final String CONFIG_BACKUP_PCLOUD_ENABLED = "administration.backup.pcloud.enabled";
+	public static final String CONFIG_BACKUP_PCLOUD_AUTH_TOKEN = "administration.backup.pcloud.auth_token";
+	public static final String CONFIG_BACKUP_PCLOUD_PATH = "administration.backup.pcloud.path";
+	public static final String CONFIG_BACKUP_MEGA_ENABLED = "administration.backup.mega.enabled";
+	public static final String CONFIG_BACKUP_MEGA_CMD_PATH = "administration.backup.mega.cmd_path";
+	public static final String CONFIG_BACKUP_MEGA_EMAIL = "administration.backup.mega.email";
+	public static final String CONFIG_BACKUP_MEGA_PASSWORD = "administration.backup.mega.password";
+	public static final String CONFIG_BACKUP_MEGA_REMOTE_PATH = "administration.backup.mega.remote_path";
+	public static final String CONFIG_BACKUP_PROTON_ENABLED = "administration.backup.proton.enabled";
+	public static final String CONFIG_BACKUP_PROTON_RCLONE_PATH = "administration.backup.proton.rclone_path";
+	public static final String CONFIG_BACKUP_PROTON_RCLONE_REMOTE = "administration.backup.proton.rclone_remote";
+	// /
+	
 	public static final String CONFIG_SEARCH_RESULTS_PER_PAGE = "search.results_per_page";
 	public static final String CONFIG_SEARCH_RESULT_LIMIT = "search.result_limit";
 

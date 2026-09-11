@@ -321,6 +321,8 @@
 *administration.configurations.save.success = Configurations modified successfully
 
 *administration.maintenance.backup.auto_download = Backup made, automatic download in a few seconds…
+*administration.maintenance.backup.cloud_upload.success = Backup sent to the cloud successfully
+*administration.maintenance.backup.cloud_upload.error = Failed to send the backup to the cloud. Check the service settings and try again.
 *administration.maintenance.backup.backup_never_downloaded = This backup was never downloaded
 *administration.maintenance.backup.backup_not_complete = Backup not complete
 *administration.maintenance.backup.button_digital_media_only = Create digital files backup
@@ -355,6 +357,10 @@
 *administration.maintenance.backup.error.invalid_restore_path = The configured directory for restoring backup files is not valid
 *administration.maintenance.backup.error.invalid_schema = Backup list has one or more invalid libraries
 *administration.maintenance.backup.error.no_schema_selected = You need to select at least one library to be restored
+*administration.maintenance.backup.error.cloud_download_failed = Failed to download the backup from cloud
+*administration.maintenance.backup.error.invalid_cloud_service = Invalid cloud service
+*administration.maintenance.backup.error.cloud_list_failed = Failed to list backups from cloud
+*administration.maintenance.backup.error.test_failed = Backup validation failed. The backup file cannot be restored correctly.
 *administration.maintenance.backup.error.psql_not_found = PSQL not found
 
 *administration.maintenance.reindex.button_authorities = Reindex authorities base
@@ -702,6 +708,21 @@
 
 *administration.setup.biblivre4restore.success.description = Backup successfully restored
 
+*administration.setup.biblivre4restore_cloud.description = You can also restore a backup stored in the cloud.
+*administration.setup.biblivre4restore_cloud.field.service = Cloud service
+*administration.setup.biblivre4restore_cloud.field.filename = Backup file name
+*administration.setup.biblivre4restore_cloud.button = Restore backup from cloud
+*administration.setup.biblivre4restore_cloud.select_file = Enter the backup file name
+*administration.setup.biblivre4restore_cloud.error = Cloud backup restore error
+*administration.setup.biblivre4restore_cloud.error.description = Could not download the backup from cloud. Check the service settings and file name.
+*administration.setup.biblivre4restore_cloud.confirm_title = Restore Cloud Backup
+*administration.setup.biblivre4restore_cloud.confirm_description = Do you really wish to restore this cloud backup?
+*administration.setup.biblivre4restore_cloud.select_placeholder = Select a backup
+*administration.setup.biblivre4restore_cloud.button.refresh_list = Refresh list
+*administration.setup.biblivre4restore_cloud.button.prev = Previous
+*administration.setup.biblivre4restore_cloud.button.next = Next
+*administration.setup.biblivre4restore_cloud.page = Page
+
 *administration.setup.button.continue_to_biblivre = Go to Biblivre
 *administration.setup.button.show_log = Show log
 
@@ -996,6 +1017,132 @@
 *cataloging.lending.error.holding_unavailable = The item selected is not available for loans
 *cataloging.lending.error.limit_exceeded = The selected reader surpassed the limit of authorized loans
 
+*administration.configurations.save.success = Configurations saved successfully
+*administration.configurations.error.save = Could not save configurations
+*administration.configurations.error.value_is_required = This field is required
+*administration.configurations.error.value_must_be_boolean = Value must be true or false
+*administration.configurations.error.value_must_be_numeric = Value must be a number
+
+*administration.configuration.title.administration.backup.email.enabled = Enable backup by email
+*administration.configuration.description.administration.backup.email.enabled = Define if the backup will be sent by email after completion.
+*administration.configuration.title.administration.backup.email.host = SMTP Server
+*administration.configuration.description.administration.backup.email.host = SMTP server address for sending email.
+*administration.configuration.title.administration.backup.email.port = SMTP Port
+*administration.configuration.description.administration.backup.email.port = SMTP server port (e.g. 587 for TLS, 465 for SSL).
+*administration.configuration.title.administration.backup.email.user = SMTP User
+*administration.configuration.description.administration.backup.email.user = User for SMTP server authentication.
+*administration.configuration.title.administration.backup.email.password = SMTP Password
+*administration.configuration.description.administration.backup.email.password = Password for SMTP server authentication.
+*administration.configuration.title.administration.backup.email.from = Sender Email
+*administration.configuration.description.administration.backup.email.from = Email address that will appear as sender.
+*administration.configuration.title.administration.backup.email.to = Recipient Email
+*administration.configuration.description.administration.backup.email.to = Email address that will receive the backup.
+*administration.configuration.title.administration.backup.email.ssl = Use SSL/TLS
+*administration.configuration.description.administration.backup.email.ssl = Define if the connection to the SMTP server should use SSL/TLS.
+
+*administration.configuration.title.administration.backup.google_drive.enabled = Enable backup to Google Drive
+*administration.configuration.description.administration.backup.google_drive.enabled = Define if the backup will be sent to Google Drive.
+*administration.configuration.title.administration.backup.google_drive.client_id = Google Drive Client ID
+*administration.configuration.description.administration.backup.google_drive.client_id = Client ID obtained from Google Cloud Console.
+*administration.configuration.title.administration.backup.google_drive.client_secret = Google Drive Client Secret
+*administration.configuration.description.administration.backup.google_drive.client_secret = Client Secret obtained from Google Cloud Console.
+*administration.configuration.title.administration.backup.google_drive.refresh_token = Google Drive Refresh Token
+*administration.configuration.description.administration.backup.google_drive.refresh_token = Refresh Token for offline access to Google Drive.
+*administration.configuration.title.administration.backup.google_drive.account_email = Connected Google account
+*administration.configuration.description.administration.backup.google_drive.account_email = Email of the Google account authorized to receive backups.
+*administration.configuration.google_drive.oauth.error.fill_client_fields = Fill in Client ID and Client Secret before connecting.
+*administration.configuration.google_drive.oauth.status.opening = Opening Google authentication...
+*administration.configuration.google_drive.oauth.status.waiting = Waiting for authorization in Google...
+*administration.configuration.google_drive.oauth.status.exchanging = Finishing Google Drive connection...
+*administration.configuration.google_drive.oauth.status.connected = Google account connected successfully. Click Save to persist all page changes.
+*administration.configuration.google_drive.oauth.status.cancelled = The authentication window was closed before finishing.
+*administration.configuration.google_drive.oauth.status.error = Could not complete Google Drive authentication.
+*administration.configuration.google_drive.oauth.error.popup_blocked = The browser blocked the authentication window. Allow pop-ups to continue.
+*administration.configuration.google_drive.oauth.error.user_denied = Google authorization was cancelled.
+*administration.configuration.google_drive.oauth.error.missing_client_id = Inform the Google Drive Client ID.
+*administration.configuration.google_drive.oauth.error.invalid_state = Authentication session expired or invalid. Please try again.
+*administration.configuration.google_drive.oauth.error.missing_credentials = Client ID and Client Secret are required to finish authentication.
+*administration.configuration.google_drive.oauth.error.missing_refresh_token = Google did not return a Refresh Token. Revoke app access and connect again.
+*administration.configuration.google_drive.oauth.error.exchange_failed = Failed to finish Google Drive authentication.
+
+*administration.configuration.title.administration.backup.onedrive.enabled = Enable backup to OneDrive
+*administration.configuration.description.administration.backup.onedrive.enabled = Define if the backup will be sent to OneDrive.
+*administration.configuration.title.administration.backup.onedrive.client_id = OneDrive Client ID
+*administration.configuration.description.administration.backup.onedrive.client_id = Client ID obtained from Azure Portal.
+*administration.configuration.title.administration.backup.onedrive.client_secret = OneDrive Client Secret
+*administration.configuration.description.administration.backup.onedrive.client_secret = Client Secret obtained from Azure Portal.
+*administration.configuration.title.administration.backup.onedrive.refresh_token = OneDrive Refresh Token
+*administration.configuration.description.administration.backup.onedrive.refresh_token = Refresh Token for offline access to OneDrive.
+
+*administration.configuration.title.administration.backup.dropbox.enabled = Enable backup to Dropbox
+*administration.configuration.description.administration.backup.dropbox.enabled = Define if the backup will be sent to Dropbox.
+*administration.configuration.title.administration.backup.dropbox.app_key = Dropbox App Key
+*administration.configuration.description.administration.backup.dropbox.app_key = App Key obtained from Dropbox App Console.
+*administration.configuration.title.administration.backup.dropbox.app_secret = Dropbox Secret Key
+*administration.configuration.description.administration.backup.dropbox.app_secret = Secret Key obtained from Dropbox App Console.
+*administration.configuration.title.administration.backup.dropbox.access_token = Dropbox Access Token
+*administration.configuration.description.administration.backup.dropbox.access_token = OAuth Access Token saved automatically.
+*administration.configuration.title.administration.backup.dropbox.refresh_token = Dropbox Refresh Token
+*administration.configuration.description.administration.backup.dropbox.refresh_token = OAuth Refresh Token used to renew Dropbox access.
+*administration.configuration.title.administration.backup.dropbox.access_token_expires_at = Dropbox Access Token expires at
+*administration.configuration.description.administration.backup.dropbox.access_token_expires_at = Access Token expiration timestamp saved automatically.
+*administration.configuration.title.administration.backup.dropbox.account_email = Connected Dropbox account
+*administration.configuration.description.administration.backup.dropbox.account_email = Email of the Dropbox account authorized to receive backups.
+*administration.configuration.dropbox.oauth.status.opening = Opening Dropbox authentication...
+*administration.configuration.dropbox.oauth.status.waiting = Waiting for authorization in Dropbox...
+*administration.configuration.dropbox.oauth.status.exchanging = Finishing Dropbox connection...
+*administration.configuration.dropbox.oauth.status.connected = Dropbox account connected successfully. Click Save to persist other page changes.
+*administration.configuration.dropbox.oauth.status.cancelled = The authentication window was closed before finishing.
+*administration.configuration.dropbox.oauth.status.error = Could not complete Dropbox authentication.
+*administration.configuration.dropbox.oauth.error.popup_blocked = The browser blocked the authentication window. Allow pop-ups to continue.
+*administration.configuration.dropbox.oauth.error.user_denied = Dropbox authorization was cancelled.
+*administration.configuration.dropbox.oauth.error.missing_credentials = App Key and Secret Key are required to authenticate with Dropbox.
+*administration.configuration.dropbox.oauth.error.invalid_state = Authentication session expired or invalid. Please try again.
+*administration.configuration.dropbox.oauth.error.missing_refresh_token = Dropbox did not return a Refresh Token. Connect again requesting offline access.
+*administration.configuration.dropbox.oauth.error.auth_url_failed = Failed to generate Dropbox authentication URL.
+*administration.configuration.dropbox.oauth.error.exchange_failed = Failed to finish Dropbox authentication.
+
+*administration.configuration.title.administration.backup.box.enabled = Enable backup to Box
+*administration.configuration.description.administration.backup.box.enabled = Define if the backup will be sent to Box.
+*administration.configuration.title.administration.backup.box.client_id = Box Client ID
+*administration.configuration.description.administration.backup.box.client_id = OAuth application Client ID from Box Developer Console.
+*administration.configuration.title.administration.backup.box.client_secret = Box Client Secret
+*administration.configuration.description.administration.backup.box.client_secret = OAuth application Client Secret from Box Developer Console.
+*administration.configuration.title.administration.backup.box.access_token = Box Access Token / Developer Token
+*administration.configuration.description.administration.backup.box.access_token = OAuth Access Token saved automatically or temporary Developer Token for tests.
+*administration.configuration.title.administration.backup.box.refresh_token = Box Refresh Token
+*administration.configuration.description.administration.backup.box.refresh_token = Box OAuth Refresh Token used to renew access.
+*administration.configuration.title.administration.backup.box.folder_id = Box Folder ID
+*administration.configuration.description.administration.backup.box.folder_id = Destination folder ID in Box (0 for root).
+
+*administration.configuration.title.administration.backup.pcloud.enabled = Enable backup to pCloud
+*administration.configuration.description.administration.backup.pcloud.enabled = Define if the backup will be sent to pCloud.
+*administration.configuration.title.administration.backup.pcloud.auth_token = pCloud Auth Token
+*administration.configuration.description.administration.backup.pcloud.auth_token = Authentication token obtained from pCloud.
+*administration.configuration.title.administration.backup.pcloud.path = pCloud Path
+*administration.configuration.description.administration.backup.pcloud.path = Remote path in pCloud (e.g. /Backups).
+
+*administration.configuration.title.administration.backup.mega.enabled = Enable backup to MEGA
+*administration.configuration.description.administration.backup.mega.enabled = Define if the backup will be sent to MEGA.
+*administration.configuration.title.administration.backup.mega.cmd_path = MEGAcmd Path
+*administration.configuration.description.administration.backup.mega.cmd_path = Directory containing mega-login/mega-put/mega-get.
+*administration.configuration.title.administration.backup.mega.email = MEGA Email
+*administration.configuration.description.administration.backup.mega.email = MEGA account email.
+*administration.configuration.title.administration.backup.mega.password = MEGA Password
+*administration.configuration.description.administration.backup.mega.password = MEGA account password.
+*administration.configuration.title.administration.backup.mega.remote_path = MEGA Remote Path
+*administration.configuration.description.administration.backup.mega.remote_path = Remote path in MEGA (e.g. /Backups).
+
+*administration.configuration.title.administration.backup.proton.enabled = Enable backup to Proton Drive
+*administration.configuration.description.administration.backup.proton.enabled = Define if the backup will be sent to Proton Drive.
+*administration.configuration.title.administration.backup.proton.rclone_path = rclone Path
+*administration.configuration.description.administration.backup.proton.rclone_path = Path to the rclone executable configured with Proton Drive.
+*administration.configuration.title.administration.backup.proton.rclone_remote = rclone Remote
+*administration.configuration.description.administration.backup.proton.rclone_remote = rclone remote name (e.g. proton:Backups).
+
+*administration.configuration.cloud.selector.label = Cloud service
+*administration.configuration.cloud.selector.placeholder = Select a service
+
 *cataloging.record.error.delete = Error deleting Record
 *cataloging.record.error.move = Error moving Records
 *cataloging.record.error.save = Error saving Record
@@ -1243,6 +1390,7 @@
 *circulation.reservation.button.select_reader = Select reader
 
 *circulation.reservation.error.select_reader_first = To reserve a record you need, first of all, to select a reader
+*circulation.reservation.error.select_holding_first = To reserve, you must select a holding.
 
 *circulation.reservation.holdings.title = Search Bibliographic record
 

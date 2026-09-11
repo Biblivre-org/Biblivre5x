@@ -1,0 +1,62 @@
+/* Estrutura base */
+.treeview,
+.treeview ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 14px;
+}
+
+.treeview li {
+    margin: 4px 0;
+}
+
+/* Botão do nó */
+.tree-toggle {
+    width: 100%;
+    background: none;
+    border: none;
+    padding: 6px 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    text-align: left;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.tree-toggle:hover {
+    background-color: #f1f3f5;
+}
+
+/* Ícone + / - */
+.icon {
+    width: 16px;
+    font-weight: bold;
+    color: #0d6efd;
+}
+
+/* SUBMENUS DESLOCADOS (ESTILO EXPLORER) */
+.children {
+    margin-left: 32px;        /* deslocamento à direita */
+    padding-left: 10px;
+     border-left: 1px dotted #ced4da;
+}
+
+.children.collapse {
+    transition: all 0.25s ease;
+}
+
+/* Itens folha */
+.leaf {
+    padding: 0px 40px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.leaf:hover {
+    background-color: #f1f3f5;
+}

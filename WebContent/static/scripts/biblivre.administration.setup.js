@@ -138,6 +138,147 @@ Administration.setup.biblivre4RestoreFromFile = function(file) {
 	});
 };
 
+Administration.setup.biblivre4RestoreFromCloud = function() {
+	var service = $('#cloud_restore_service').val();
+	var filename = $('#cloud_restore_filename').val();
+
+	if (!filename) {
+		alert(_('administration.setup.biblivre4restore_cloud.select_file'));
+		return;
+	}
+
+	Administration.setup.showConfirm('biblivre4restore_cloud', function() {
+		Administration.setup.biblivre4RestoreCloud(service, filename);
+	});
+};
+
+Administration.setup.loadCloudBackups = function(service) {
+	var list = $('#cloud_restore_file_list');
+	var refresh = $('#cloud_restore_refresh');
+
+	if (!list.size()) {
+		return;
+	}
+
+	list.empty();
+	list.append($('<option>', { value: '', text: _('administration.setup.biblivre4restore_cloud.select_placeholder') }));
+
+	Administration.setup.cloudBackups = [];
+	Administration.setup.cloudPage = 0;
+	Administration.setup.renderCloudBackupPage();
+
+	refresh.addClass('loading');
+
+	$.ajax({
+		url: window.location.pathname,
+		type: 'POST',
+		dataType: 'json',
+		data: {
+			controller: 'json',
+			module: 'administration.setup',
+			action: 'list_cloud_backups',
+			service: service
+		},
+		success: function(response) {
+			refresh.removeClass('loading');
+
+			if (response.success && response.backups) {
+				Administration.setup.cloudBackups = response.backups;
+				Administration.setup.cloudPage = 0;
+				Administration.setup.renderCloudBackupPage();
+			}
+		},
+		error: function() {
+			refresh.removeClass('loading');
+		}
+	});
+};
+
+Administration.setup.renderCloudBackupPage = function() {
+	var list = $('#cloud_restore_file_list');
+	var prev = $('#cloud_restore_prev');
+	var next = $('#cloud_restore_next');
+	var info = $('#cloud_restore_page_info');
+	var all = Administration.setup.cloudBackups || [];
+	var pageSize = Administration.setup.cloudPageSize || 10;
+	var totalPages = all.length ? Math.ceil(all.length / pageSize) : 0;
+
+	if (!list.size()) {
+		return;
+	}
+
+	if (Administration.setup.cloudPage < 0) {
+		Administration.setup.cloudPage = 0;
+	}
+	if (totalPages && Administration.setup.cloudPage >= totalPages) {
+		Administration.setup.cloudPage = totalPages - 1;
+	}
+
+	list.empty();
+	list.append($('<option>', { value: '', text: _('administration.setup.biblivre4restore_cloud.select_placeholder') }));
+
+	var start = Administration.setup.cloudPage * pageSize;
+	var end = start + pageSize;
+	$.each(all.slice(start, end), function(index, name) {
+		list.append($('<option>', { value: name, text: name }));
+	});
+
+	if (info.size()) {
+		var pageText = totalPages ? (Administration.setup.cloudPage + 1) + '/' + totalPages : '0/0';
+		info.text(_('administration.setup.biblivre4restore_cloud.page') + ' ' + pageText);
+	}
+
+	if (prev.size()) {
+		prev.prop('disabled', Administration.setup.cloudPage <= 0);
+	}
+
+	if (next.size()) {
+		next.prop('disabled', totalPages === 0 || Administration.setup.cloudPage >= totalPages - 1);
+	}
+};
+
+Administration.setup.syncCloudFilename = function() {
+	var selected = $('#cloud_restore_file_list').val();
+	if (selected) {
+		$('#cloud_restore_filename').val(selected);
+	}
+};
+
+Administration.setup.biblivre4RestoreCloud = function(service, filename) {
+	Administration.progress.showPopupProgress();
+	Administration.progress.progress(1000);
+
+	$.ajax({
+		url: window.location.pathname,
+		type: 'POST',
+		dataType: 'json',
+		data: {
+			controller: 'json',
+			module: 'administration.setup',
+			action: 'restore_from_cloud',
+			service: service,
+			filename: filename
+		},
+		success: function(response) {
+			Administration.progress.cancel();
+
+			if (response.success && response.file) {
+				if (Administration.setup.multiLibrary) {
+					Schemas.restore(response.metadata);
+				} else {
+					Administration.setup.confirmBiblivre4Restore(response.file);
+				}
+			} else {
+				Administration.setup.showError('biblivre4restore_cloud');
+			}
+		},
+		error: function() {
+			Administration.progress.cancel();
+			Administration.setup.showError('biblivre4restore_cloud');
+		}
+	});
+};
+
 Administration.setup.biblivre4RestoreFromFileMedia = function(file) {
 	$('input[name="biblivre4backup"]').val('');
 
@@ -148,6 +289,49 @@ Administration.setup.biblivre4RestoreFromFileMedia = function(file) {
 	
 	Administration.setup.biblivre4UploadBackup(true);
 };
+
+$(document).ready(function() {
+	var serviceSelect = $('#cloud_restore_service');
+	var list = $('#cloud_restore_file_list');
+	var refresh = $('#cloud_restore_refresh');
+	var prev = $('#cloud_restore_prev');
+	var next = $('#cloud_restore_next');
+
+	if (serviceSelect.size()) {
+		Administration.setup.loadCloudBackups(serviceSelect.val());
+		serviceSelect.change(function() {
+			Administration.setup.loadCloudBackups($(this).val());
+		});
+	}
+
+	if (list.size()) {
+		list.change(function() {
+			Administration.setup.syncCloudFilename();
+		});
+	}
+
+	if (refresh.size()) {
+		refresh.click(function() {
+			Administration.setup.loadCloudBackups(serviceSelect.val());
+		});
+	}
+
+	if (prev.size()) {
+		prev.click(function() {
+			if (Administration.setup.cloudPage > 0) {
+				Administration.setup.cloudPage -= 1;
+				Administration.setup.renderCloudBackupPage();
+			}
+		});
+	}
+
+	if (next.size()) {
+		next.click(function() {
+			Administration.setup.cloudPage += 1;
+			Administration.setup.renderCloudBackupPage();
+		});
+	}
+});
 
 Administration.setup.biblivre3UploadBackup = function() {
 	$('#page_submit').ajaxSubmit({

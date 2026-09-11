@@ -1,0 +1,1 @@
+﻿delete from global.versions where installed_versions = '5.1.32'

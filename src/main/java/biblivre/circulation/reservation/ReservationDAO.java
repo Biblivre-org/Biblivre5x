@@ -36,6 +36,7 @@ import org.apache.commons.lang3.StringUtils;
 import biblivre.administration.indexing.IndexingGroups;
 import biblivre.cataloging.RecordDTO;
 import biblivre.cataloging.enums.RecordType;
+import biblivre.cataloging.holding.HoldingDTO;
 import biblivre.circulation.user.UserDTO;
 import biblivre.core.AbstractDAO;
 import biblivre.core.AbstractDTO;
@@ -71,10 +72,10 @@ public class ReservationDAO extends AbstractDAO {
 	}
 
 	public List<ReservationDTO> list() {
-		return this.list(null, null);
+		return this.list(null, null, null);
 	}
 	
-	public List<ReservationDTO> list(UserDTO user, RecordDTO record) {
+	public List<ReservationDTO> list(UserDTO user, RecordDTO record, HoldingDTO holding) {
 		List<ReservationDTO> list = new ArrayList<ReservationDTO>();
 		Connection con = null;
 		try {
@@ -82,15 +83,19 @@ public class ReservationDAO extends AbstractDAO {
 			
 			StringBuilder sql = new StringBuilder();
 			sql.append("SELECT R.* FROM reservations R INNER JOIN biblio_idx_sort S ");
-			sql.append("ON S.record_id = R.record_id WHERE R.expires > localtimestamp ");
+			sql.append("ON R.record_id = S.record_id WHERE R.expires > localtimestamp ");
 			sql.append("AND S.indexing_group_id = ? ");
-
+			
 			if (user != null) {
 				sql.append("AND R.user_id = ? ");
 			}
 
 			if (record != null) {
 				sql.append("AND R.record_id = ? ");
+			}
+			
+			if (holding != null) {
+				sql.append("AND R.holding_id = ? ");
 			}
 			
 			sql.append("ORDER BY S.phrase ASC;");
@@ -108,8 +113,11 @@ public class ReservationDAO extends AbstractDAO {
 			if (record != null) {
 				pst.setInt(index++, record.getId());
 			}
-
-
+			
+			if (holding != null) {
+				pst.setInt(index++, holding.getId());
+			}
+			
 			ResultSet rs = pst.executeQuery();
 			while (rs.next()) {
 				list.add(this.populateDTO(rs));
@@ -140,7 +148,7 @@ public class ReservationDAO extends AbstractDAO {
 			}
 
 			if (record != null) {
-				sql.append("AND record_id = ? ");
+				sql.append("AND holding_id = ? ");
 			}
 			
 		
@@ -209,8 +217,8 @@ public class ReservationDAO extends AbstractDAO {
 		}
 	}
 	
-	public boolean delete(Integer userId, Integer recordId) {
-		if (userId == null || recordId == null) {
+	public boolean delete(Integer userId, Integer holdingId) {
+		if (userId == null || holdingId == null) {
 			return false;
 		}
 		
@@ -220,12 +228,12 @@ public class ReservationDAO extends AbstractDAO {
 			
 			StringBuilder sql = new StringBuilder();
 			sql.append("DELETE FROM reservations WHERE id IN ");
-			sql.append("(SELECT id FROM reservations WHERE user_id = ? AND record_id = ? AND expires > localtimestamp ");
+			sql.append("(SELECT id FROM reservations WHERE user_id = ? AND holding_id = ? AND expires > localtimestamp ");
 			sql.append("ORDER BY expires ASC LIMIT 1);"); // Users can reserve more than one copy of each record
 
 			PreparedStatement pst = con.prepareStatement(sql.toString());
 			pst.setInt(1, userId);
-			pst.setInt(2, recordId);
+			pst.setInt(2, holdingId);
 
 			return pst.executeUpdate() > 0;
 		} catch (Exception e) {
@@ -241,14 +249,15 @@ public class ReservationDAO extends AbstractDAO {
 			con = this.getConnection();
 			
 			StringBuilder sql = new StringBuilder();
-			sql.append("INSERT INTO reservations (record_id, user_id, expires, created_by) ");
-			sql.append("VALUES (?, ?, ?, ?) ");
+			sql.append("INSERT INTO reservations (record_id, holding_id, user_id, expires, created_by) ");//24/08/2026
+			sql.append("VALUES (?, ?, ?, ?, ?) ");
 
 			PreparedStatement pst = con.prepareStatement(sql.toString(), Statement.RETURN_GENERATED_KEYS);
 			pst.setInt(1, dto.getRecordId());
-			pst.setInt(2, dto.getUserId());
-			pst.setTimestamp(3, CalendarUtils.toSqlTimestamp(dto.getExpires()));
-			pst.setInt(4, dto.getCreatedBy());
+			pst.setInt(2, dto.getHoldingId());
+			pst.setInt(3, dto.getUserId());
+			pst.setTimestamp(4, CalendarUtils.toSqlTimestamp(dto.getExpires()));
+			pst.setInt(5, dto.getCreatedBy());
 			
 			pst.executeUpdate();
 			
@@ -265,24 +274,25 @@ public class ReservationDAO extends AbstractDAO {
 		}
 	}
 	
-	public boolean saveFromBiblivre3(List<? extends AbstractDTO> dtoList) {
+	public boolean saveFromBiblivre3(List<? extends AbstractDTO> dtoList) {//Verificar se o objeto carrega holding
 		Connection con = null;		
 		try {
 			con = this.getConnection();
 			
 			StringBuilder sql = new StringBuilder();
-			sql.append("INSERT INTO reservations (record_id, user_id, expires, created_by, id) ");
-			sql.append("VALUES (?, ?, ?, ?, ?) ");
+			sql.append("INSERT INTO reservations (record_id, holding_id, user_id, expires, created_by, id) ");
+			sql.append("VALUES (?, ?, ?, ?, ?, ?) ");
 
 			PreparedStatement pst = con.prepareStatement(sql.toString());
 			
 			for (AbstractDTO abstractDto : dtoList) {
 				ReservationDTO dto = (ReservationDTO) abstractDto;
 				pst.setInt(1, dto.getRecordId());
-				pst.setInt(2, dto.getUserId());
-				pst.setTimestamp(3, CalendarUtils.toSqlTimestamp(dto.getExpires()));
-				pst.setInt(4, dto.getCreatedBy());
-				pst.setInt(5, dto.getId());
+				pst.setInt(2, dto.getHoldingId());
+				pst.setInt(3, dto.getUserId());
+				pst.setTimestamp(4, CalendarUtils.toSqlTimestamp(dto.getExpires()));
+				pst.setInt(5, dto.getCreatedBy());
+				pst.setInt(6, dto.getId());
 				pst.addBatch();
 			}
 			
@@ -300,7 +310,7 @@ public class ReservationDAO extends AbstractDAO {
 		ReservationDTO dto = new ReservationDTO();
 
 		dto.setId(rs.getInt("id"));
-		dto.setRecordId(rs.getInt("record_id"));
+		dto.setRecordId(rs.getInt("holding_id"));
 		dto.setUserId(rs.getInt("user_id"));
 		dto.setExpires(rs.getTimestamp("expires"));
 
@@ -319,7 +329,7 @@ public class ReservationDAO extends AbstractDAO {
 			
 			StringBuilder sql = new StringBuilder();
 			sql.append("SELECT * FROM reservations WHERE ");
-			sql.append("record_id in (");
+			sql.append("holding_id in (");
 			sql.append(StringUtils.repeat("?", ", ", recordIds.size()));
 			sql.append(") AND expires > localtimestamp ORDER BY created ASC;");
 
@@ -331,7 +341,7 @@ public class ReservationDAO extends AbstractDAO {
 
 			ResultSet rs = pst.executeQuery();
 			while (rs.next()) {
-				Integer recordId = rs.getInt("record_id");
+				Integer recordId = rs.getInt("holding_id");
 				List<ReservationDTO> reservations = map.get(recordId);
 				if (reservations == null) {
 					reservations = new LinkedList<ReservationDTO>();
@@ -353,8 +363,8 @@ public class ReservationDAO extends AbstractDAO {
 		Connection con = null;
 		try {
 			con = this.getConnection();
-
-			String sql = "SELECT * FROM reservations WHERE record_id = ? AND expires > localtimestamp;";
+			
+			String sql = "SELECT * FROM reservations WHERE holding_id = ? AND expires > localtimestamp;";
 
 			PreparedStatement ppst = con.prepareStatement(sql);
 			ppst.setInt(1, id);

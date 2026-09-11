@@ -27,7 +27,11 @@ import org.json.JSONException;
 import biblivre.administration.indexing.IndexingGroupDTO;
 import biblivre.administration.indexing.IndexingGroups;
 import biblivre.cataloging.RecordBO;
+import biblivre.cataloging.RecordDTO;
+import biblivre.cataloging.bibliographic.BiblioRecordBO;
 import biblivre.cataloging.bibliographic.BiblioRecordDTO;
+import biblivre.cataloging.holding.HoldingBO;
+import biblivre.cataloging.holding.HoldingDTO;
 import biblivre.cataloging.enums.RecordType;
 import biblivre.cataloging.search.SearchDTO;
 import biblivre.circulation.user.UserBO;
@@ -56,6 +60,13 @@ public class Handler extends AbstractHandler {
 		ReservationBO rbo = ReservationBO.getInstance(schema);
 		rbo.populateReservationInfoByBiblio(search);
 		
+		// Popular a lista de exemplares (holdings) para cada obra retornada
+		HoldingBO hbo = HoldingBO.getInstance(schema);
+		for (RecordDTO rdto : search) {
+			BiblioRecordDTO biblio = (BiblioRecordDTO) rdto;
+			biblio.setHoldings(hbo.list(biblio.getId()));
+		}
+		
 		List<IndexingGroupDTO> groups = IndexingGroups.getGroups(request.getSchema(), RecordType.BIBLIO);
 		
 		try {
@@ -83,6 +94,13 @@ public class Handler extends AbstractHandler {
 
 		ReservationBO rbo = ReservationBO.getInstance(schema);
 		rbo.populateReservationInfoByBiblio(search);
+		
+		// Popular a lista de exemplares (holdings) para cada obra retornada
+		HoldingBO hbo = HoldingBO.getInstance(schema);
+		for (RecordDTO rdto : search) {
+			BiblioRecordDTO biblio = (BiblioRecordDTO) rdto;
+			biblio.setHoldings(hbo.list(biblio.getId()));
+		}
 
 		List<IndexingGroupDTO> groups = IndexingGroups.getGroups(request.getSchema(), RecordType.BIBLIO);
 		
@@ -137,26 +155,52 @@ public class Handler extends AbstractHandler {
 
 	public void reserve(ExtendedRequest request, ExtendedResponse response) {
 		String schema = request.getSchema();
-		int recordId = request.getInteger("record_id");
-		int userId = request.getInteger("user_id");
+		Integer recordId = request.getInteger("record_id");
+		Integer holdingId = request.getInteger("id");	
+		Integer userId = request.getInteger("user_id");
+		
+		HoldingBO hbo = (HoldingBO) HoldingBO.getInstance(schema, RecordType.HOLDING);
+		HoldingDTO holding = (HoldingDTO)hbo.get(holdingId, RecordBO.HOLDING_INFO);//Exemplar completo
+		
+		if (holding == null) {
+			this.setMessage(ActionResult.WARNING, "error.invalid_parameters");
+			return;
+		}
+		
+		if (recordId == null) {
+			recordId = holding.getRecordId();
+		}
 		
 		RecordBO rbo = RecordBO.getInstance(schema, RecordType.BIBLIO);
-		BiblioRecordDTO record = (BiblioRecordDTO)rbo.get(recordId, RecordBO.MARC_INFO);
+		BiblioRecordDTO record = (BiblioRecordDTO)rbo.get(recordId, RecordBO.MARC_INFO);//Obra completa
+		
+		if (record == null) {
+			this.setMessage(ActionResult.WARNING, "error.invalid_parameters");
+			return;
+		}
 		
 		UserBO userBo = UserBO.getInstance(schema);
 		UserDTO user = userBo.get(userId);
 		
 		ReservationBO reservationBo = ReservationBO.getInstance(schema);
-		int reservationId = reservationBo.reserve(record, user, request.getLoggedUserId());
-		
+		int reservationId = reservationBo.reserve(record, holding, user, request.getLoggedUserId());
+			
+		//verificar se tem exemplar de uma obra que não foi reservado
+								
 		if (reservationId > 0) {
 			this.setMessage(ActionResult.SUCCESS, "circulation.reservation.reserve_success");
-			
+
 			ReservationDTO reservation = reservationBo.get(reservationId);
 			ReservationInfoDTO info = new ReservationInfoDTO();
 			info.setReservation(reservation);
-			info.setBiblio(record);
+			info.setHolding(holding);
 			info.setUser(user);
+			
+			BiblioRecordBO bbo = BiblioRecordBO.getInstance(schema);
+			BiblioRecordDTO biblio = (BiblioRecordDTO) bbo.get(holding.getRecordId(), RecordBO.MARC_INFO);
+			if (biblio != null) {
+				info.setBiblio(biblio);
+			}
 			
 			try {
 				this.json.put("data", info.toJSONObject());
@@ -193,6 +237,13 @@ public class Handler extends AbstractHandler {
 		if (CollectionUtils.isEmpty(search)) {
 			this.setMessage(ActionResult.WARNING, "cataloging.error.no_records_found");
 			return;
+		}
+
+		// Popular a lista de exemplares (holdings) para cada obra retornada
+		HoldingBO hbo = HoldingBO.getInstance(request.getSchema());
+		for (RecordDTO rdto : search) {
+			BiblioRecordDTO biblio = (BiblioRecordDTO) rdto;
+			biblio.setHoldings(hbo.list(biblio.getId()));
 		}
 
 		List<IndexingGroupDTO> groups = IndexingGroups.getGroups(request.getSchema(), RecordType.BIBLIO);

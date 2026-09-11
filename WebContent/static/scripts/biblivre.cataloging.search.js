@@ -639,7 +639,7 @@ var CatalogingSearchClass = {
 			}
 		});
 	},
-	reserve: function(id, action) {
+	reserve: function(recordId, holdingId, action) {
 		var _action = action || 'reserve';
 		if (!CirculationSearch.selectedRecord) {
 			Core.msg({
@@ -648,12 +648,17 @@ var CatalogingSearchClass = {
 			});
 			return;
 		}
-		
+
+		if (!holdingId) {
+			holdingId = recordId;
+		}
+
 		var data = {
 			controller: 'json',
 			module: this.type,
 			action: _action,
-			record_id: id,
+			id: holdingId,
+			record_id: recordId,
 			user_id: CirculationSearch.selectedRecord.id
 		};
 
@@ -662,15 +667,35 @@ var CatalogingSearchClass = {
 			type: 'POST',
 			dataType: 'json',
 			data: data,
-			loadingTimedOverlay: true,
 			context: this
 		}).done(function(response) {
 			if (response.success) {
-				Core.trigger(this.prefix + 'reservation-created', id, response.data);
+				Core.trigger(this.prefix + 'reservation-created', holdingId, response.data);
 			}
 			
-			Core.msg(response);
+			var showMsg = function() {
+				if (response && response.success) {
+					var lvl = (response.message_level || 'success').toString().toLowerCase();
+					var msg = response.message || _('circulation.reservation.reserve_success');
+					Core.msg({ message: msg, message_level: lvl });
+				} else {
+					Core.msg(response || { message_level: 'error', message: _('common.error') });
+				}
+			};
+			
+			setTimeout(showMsg, 0);
 		});
+	},
+	reserveHolding: function(recordId, action) {
+		var holdingId = this.root.find('input[name=holding_select_' + recordId + ']:checked').val();
+		if (!holdingId) {
+			Core.msg({
+				message: _('circulation.reservation.error.select_holding_first'),
+				message_level: 'warning'
+			});
+			return;
+		}
+		this.reserve(recordId,holdingId, action);
 	},
 	deleteReservation: function(reservationInfo, action) {
 		var _action = action || 'delete';

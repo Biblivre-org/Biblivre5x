@@ -380,7 +380,7 @@ public abstract class SearchDAO extends AbstractDAO {
         }
         
         if (query.isReservedOnly()) {
-        	sql.append("AND R.id in (SELECT DISTINCT record_id FROM reservations WHERE expires > localtimestamp) ");
+        	sql.append("AND R.id in (SELECT DISTINCT holding_id FROM reservations WHERE expires > localtimestamp) ");
         }
 		
 		return sql.toString();

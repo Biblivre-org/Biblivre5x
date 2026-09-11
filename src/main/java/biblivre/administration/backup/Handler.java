@@ -93,16 +93,25 @@ public class Handler extends AbstractHandler {
 		String schema = request.getSchema();
 		Integer id = request.getInteger("id");
 
-		BackupBO bo = BackupBO.getInstance(schema);
-		BackupDTO dto = bo.get(id);
+		final BackupBO bo = BackupBO.getInstance(schema);
+		final BackupDTO dto = bo.get(id);
 
 		if (dto == null) {
 			this.setMessage(ActionResult.ERROR, "error.invalid_parameters");
 			return;
 		}
 
-		bo.backup(dto);
 		request.setSessionAttribute(schema, "system_warning_backup", false);
+		
+		new Thread(() -> {
+			bo.backup(dto);
+			//request.setSessionAttribute(schema, "system_warning_backup", false);
+			
+		}).start();
+		
+		try {
+			this.json.put("success", true);
+		} catch (JSONException e) {}
 	}
 
 	// http://localhost:8080/Biblivre5/?controller=download&module=administration.backup&action=download&id=1
@@ -113,8 +122,8 @@ public class Handler extends AbstractHandler {
 		final BackupBO bo = BackupBO.getInstance(schema);
 		final BackupDTO dto = bo.get(id);
 
-		if (dto == null) {
-			// TODO: Error
+		if (dto == null || dto.getBackup() == null || !dto.getBackup().exists()) {
+			this.setReturnCode(404);
 			return;
 		}
 
@@ -142,13 +151,52 @@ public class Handler extends AbstractHandler {
 			return;
 		}
 
+		String backupError = bo.getBackupErrorStatus(id);
+		if (StringUtils.isNotBlank(backupError)) {
+			this.setMessage(ActionResult.ERROR, backupError);
+			return;
+		}
+
 		try {
 			this.json.put("success", true);
 			this.json.put("current", dto.getCurrentStep());
 			this.json.put("total", dto.getSteps());
 			this.json.put("complete", dto.getCurrentStep() == dto.getSteps());
+			this.json.put("cloud_enabled", bo.hasConfiguredCloudServices(schema));
 		} catch (JSONException e) {}
 	}
+
+	public void cloudProgress(ExtendedRequest request, ExtendedResponse response) {
+		String schema = request.getSchema();
+		Integer id = request.getInteger("id");
+
+		BackupBO bo = BackupBO.getInstance(schema);
+		BackupBO.CloudUploadStatus status = bo.getCloudUploadStatus(id);
+
+		try {
+			this.json.put("success", true);
+			if (status == null) {
+				this.json.put("current", 0);
+				this.json.put("total", 0);
+				this.json.put("complete", true);
+				this.json.put("active", false);
+				this.json.put("service_label", "");
+				this.json.put("error_count", 0);
+			} else {
+				this.json.put("current", status.getCurrent());
+				this.json.put("total", status.getTotal());
+				this.json.put("complete", status.isComplete());
+				this.json.put("active", status.isActive());
+				this.json.put("service_label", status.getServiceLabel());
+				this.json.put("error_count", status.getErrorCount());
+			}
+		} catch (JSONException e) {}
+	}
+
+	public void cloudprogress(ExtendedRequest request, ExtendedResponse response) {
+		this.cloudProgress(request, response);
+	}
+	
 	
 	// http://localhost:8080/Biblivre5/?controller=json&module=administration.backup&action=list
 	public void list(ExtendedRequest request, ExtendedResponse response) {

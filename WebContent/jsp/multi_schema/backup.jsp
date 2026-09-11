@@ -85,7 +85,7 @@
 							<div class="expand" onclick="Administration.backup.showAll(this);">{_('administration.maintenance.backup.show_all', [$T.backups.length])}</div>
 						{#/if}
 					
-						<a class="backup {#if $T.backup$first}last_backup{#/if} {#if $T.backup$index > 4}hidden_backup{#/if}" rel="{$T.backup.id}" href="?controller=download&module=administration.backup&action=download&id={$T.backup.id}" target="_blank">
+						<a class="backup {#if $T.backup$first}last_backup{#/if} {#if $T.backup$index > 4}hidden_backup{#/if}" rel="{$T.backup.id}" href="?controller=download&module=administration.backup&action=download&id={$T.backup.id}">
 	
 							{_d($T.backup.created, 'd t')} - {_('administration.maintenance.backup.label_' + $T.backup.type)}
 	
@@ -151,9 +151,42 @@
 					<div class="clear"></div>
 				</div>
 			</div>
+			
+			<div class="description"><i18n:text key="administration.setup.biblivre4restore_cloud.description" /></div>
+
+			<div class="fields">
+				<div>
+					<div class="label"><i18n:text key="administration.setup.biblivre4restore_cloud.field.service" /></div>
+					<div class="value">
+						<select id="cloud_restore_service" class="finput">
+							<option value="google_drive">Google Drive</option>
+							<option value="onedrive">Microsoft OneDrive</option>
+							<option value="dropbox">Dropbox</option>
+							<option value="box">Box</option>
+							<option value="pcloud">pCloud</option>
+							<option value="mega">MEGA</option>
+							<option value="proton">Proton Drive</option>
+						</select>
+					</div>
+					<div class="clear"></div>
+				</div>
+				<div>
+					<div class="label"><i18n:text key="administration.setup.biblivre4restore_cloud.field.filename" /></div>
+					<div class="value">
+						<select id="cloud_restore_file_list" class="finput"></select>
+						<a class="button" id="cloud_restore_refresh"><i18n:text key="administration.setup.biblivre4restore_cloud.button.refresh_list" /></a>
+						<a class="button" id="cloud_restore_prev"><i18n:text key="administration.setup.biblivre4restore_cloud.button.prev" /></a>
+						<a class="button" id="cloud_restore_next"><i18n:text key="administration.setup.biblivre4restore_cloud.button.next" /></a>
+						<span id="cloud_restore_page_info"></span>
+						<input type="text" id="cloud_restore_filename" class="finput"/>
+					</div>
+					<div class="clear"></div>
+				</div>
+			</div>
 
 			<div class="buttons">
 				<a class="main_button arrow_right" onclick="Administration.setup.biblivre4RestoreFromFile();"><i18n:text key="administration.setup.biblivre4restore.button" /></a>
+				<a class="main_button arrow_right" onclick="Administration.setup.biblivre4RestoreFromCloud();"><i18n:text key="administration.setup.biblivre4restore_cloud.button" /></a>
 			</div>
 		</fieldset>	
 
@@ -272,6 +305,21 @@
 
 		<fieldset class="backup">
 			<legend><i18n:text key="administration.maintenance.backup.title" /></legend>
+
+			<div class="progress">
+				<div class="progress_text"><i18n:text key="common.wait" /></div>
+				<div class="progress_bar">
+					<div class="progress_bar_outer"><div class="progress_bar_inner"></div></div>
+				</div>
+			</div>
+		</fieldset>
+	</div>
+
+	<div id="cloud_backup_popup" class="popup">
+		<div class="close" onclick="Administration.backup.cancelCloudProgress();"><i18n:text key="common.close" /></div>
+
+		<fieldset class="backup">
+			<legend><i18n:text key="administration.maintenance.backup.title" /><span class="cloud_service_label"></span></legend>
 
 			<div class="progress">
 				<div class="progress_text"><i18n:text key="common.wait" /></div>

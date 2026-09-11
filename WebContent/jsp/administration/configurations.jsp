@@ -561,9 +561,320 @@
         </div>
     </div>
 </fieldset>
-	
-		
-		
+
+		<fieldset>
+			<legend>Backup em Nuvem e E-mail</legend>
+			<div class="description">Configurações para envio automático de backup para serviços de nuvem e e-mail.</div>
+			
+			<div class="fields">
+				<div>
+					<div class="label"><i18n:text key="administration.configuration.cloud.selector.label" /></div>
+					<div class="value">
+						<select id="cloud_backup_service_selector" class="finput">
+							<option value=""><i18n:text key="administration.configuration.cloud.selector.placeholder" /></option>
+							<option value="email">E-mail</option>
+							<option value="box">Box</option>
+							<option value="dropbox">Dropbox</option>
+							<option value="google_drive">Google Drive</option>
+							<option value="mega">MEGA</option>
+							<option value="onedrive">OneDrive</option>
+							<option value="pcloud">pCloud</option>
+							<option value="proton">Proton Drive</option>
+						</select>
+					</div>
+					<div class="clear"></div>
+				</div>
+
+				<div class="cloud_service_section" data-service="email">
+				<h3 style="margin-top: 15px; border-bottom: 1px solid #ccc; padding-bottom: 5px;">E-mail</h3>
+				<% 
+					String[] emailKeys = {
+						Constants.CONFIG_BACKUP_EMAIL_ENABLED,
+						Constants.CONFIG_BACKUP_EMAIL_HOST,
+						Constants.CONFIG_BACKUP_EMAIL_PORT,
+						Constants.CONFIG_BACKUP_EMAIL_USER,
+						Constants.CONFIG_BACKUP_EMAIL_PASSWORD,
+						Constants.CONFIG_BACKUP_EMAIL_FROM,
+						Constants.CONFIG_BACKUP_EMAIL_TO,
+						Constants.CONFIG_BACKUP_EMAIL_SSL
+					};
+					for (String k : emailKeys) {
+						request.setAttribute("k", k);
+						if (k.endsWith(".enabled") || k.endsWith(".ssl")) {
+							request.setAttribute("v", Configurations.getBoolean(schema, k));
+						} else {
+							request.setAttribute("v", Configurations.getString(schema, k));
+						}
+				%>
+					<div>
+						<div class="label"><i18n:text key="administration.configuration.title.${k}" /></div>
+						<div class="value">
+							<% if (k.endsWith(".enabled") || k.endsWith(".ssl")) { %>
+								<input type="checkbox" name="${k}" class="finput cloud_backup_checkbox" style="width: auto;" <c:if test="${v}">checked="checked"</c:if>>
+							<% } else if (k.endsWith(".password")) { %>
+								<input type="password" name="${k}" class="finput" value="<c:out value="${v}"/>">
+							<% } else { %>
+								<input type="text" name="${k}" class="finput" value="<c:out value="${v}"/>">
+							<% } %>
+						</div>
+						<div class="clear"></div>
+					</div>
+				<% } %>
+				</div>
+
+				<div class="cloud_service_section" data-service="google_drive">
+				<h3 style="margin-top: 25px; border-bottom: 1px solid #ccc; padding-bottom: 5px;">Google Drive</h3>
+				<% 
+					String[] gdKeys = {
+						Constants.CONFIG_BACKUP_GOOGLE_DRIVE_ENABLED,
+						Constants.CONFIG_BACKUP_GOOGLE_DRIVE_CLIENT_ID,
+						Constants.CONFIG_BACKUP_GOOGLE_DRIVE_CLIENT_SECRET,
+						Constants.CONFIG_BACKUP_GOOGLE_DRIVE_REFRESH_TOKEN,
+						Constants.CONFIG_BACKUP_GOOGLE_DRIVE_ACCOUNT_EMAIL
+					};
+					for (String k : gdKeys) {
+						request.setAttribute("k", k);
+						if (k.endsWith(".enabled")) {
+							request.setAttribute("v", Configurations.getBoolean(schema, k));
+						} else {
+							request.setAttribute("v", Configurations.getString(schema, k));
+						}
+				%>
+					<div>
+						<div class="label"><i18n:text key="administration.configuration.title.${k}" /></div>
+						<div class="value">
+							<% if (k.endsWith(".enabled")) { %>
+								<input type="checkbox" name="${k}" class="finput cloud_backup_checkbox" style="width: auto;" <c:if test="${v}">checked="checked"</c:if>>
+							<% } else if (k.endsWith(".client_secret") || k.endsWith(".refresh_token")) { %>
+								<input type="password" name="${k}" class="finput" value="<c:out value="${v}"/>">
+							<% } else { %>
+								<input type="text" name="${k}" class="finput" value="<c:out value="${v}"/>">
+							<% } %>
+						</div>
+						<div class="clear"></div>
+					</div>
+				<% } %>
+					<div>
+						<div class="label">Autenticacao Google Drive</div>
+						<div class="value">
+							<a class="button" id="google_drive_connect_button" onclick="Configurations.googleDriveConnect(this);">Conectar com Google</a>
+							<div id="google_drive_connect_status" style="margin-top: 8px;">Clique em "Conectar com Google" para gerar o Refresh Token automaticamente.</div>
+						</div>
+						<div class="clear"></div>
+					</div>
+				</div>
+
+				<div class="cloud_service_section" data-service="onedrive">
+				<h3 style="margin-top: 25px; border-bottom: 1px solid #ccc; padding-bottom: 5px;">OneDrive</h3>
+				<% 
+					String[] odKeys = {
+						Constants.CONFIG_BACKUP_ONEDRIVE_ENABLED,
+						Constants.CONFIG_BACKUP_ONEDRIVE_CLIENT_ID,
+						Constants.CONFIG_BACKUP_ONEDRIVE_CLIENT_SECRET,
+						Constants.CONFIG_BACKUP_ONEDRIVE_REFRESH_TOKEN
+					};
+					for (String k : odKeys) {
+						request.setAttribute("k", k);
+						if (k.endsWith(".enabled")) {
+							request.setAttribute("v", Configurations.getBoolean(schema, k));
+						} else {
+							request.setAttribute("v", Configurations.getString(schema, k));
+						}
+				%>
+					<div>
+						<div class="label"><i18n:text key="administration.configuration.title.${k}" /></div>
+						<div class="value">
+							<% if (k.endsWith(".enabled")) { %>
+								<input type="checkbox" name="${k}" class="finput cloud_backup_checkbox" style="width: auto;" <c:if test="${v}">checked="checked"</c:if>>
+							<% } else if (k.endsWith(".client_secret") || k.endsWith(".refresh_token")) { %>
+								<input type="password" name="${k}" class="finput" value="<c:out value="${v}"/>">
+							<% } else { %>
+								<input type="text" name="${k}" class="finput" value="<c:out value="${v}"/>">
+							<% } %>
+						</div>
+						<div class="clear"></div>
+					</div>
+				<% } %>
+				</div>
+
+				<div class="cloud_service_section" data-service="dropbox">
+				<h3 style="margin-top: 25px; border-bottom: 1px solid #ccc; padding-bottom: 5px;">Dropbox</h3>
+				<% 
+					String[] dbKeys = {
+						Constants.CONFIG_BACKUP_DROPBOX_ENABLED,
+						Constants.CONFIG_BACKUP_DROPBOX_APP_KEY,
+						Constants.CONFIG_BACKUP_DROPBOX_APP_SECRET,
+						Constants.CONFIG_BACKUP_DROPBOX_ACCESS_TOKEN,
+						Constants.CONFIG_BACKUP_DROPBOX_REFRESH_TOKEN,
+						Constants.CONFIG_BACKUP_DROPBOX_ACCESS_TOKEN_EXPIRES_AT,
+						Constants.CONFIG_BACKUP_DROPBOX_ACCOUNT_EMAIL
+					};
+					for (String k : dbKeys) {
+						request.setAttribute("k", k);
+						if (k.endsWith(".enabled")) {
+							request.setAttribute("v", Configurations.getBoolean(schema, k));
+						} else {
+							request.setAttribute("v", Configurations.getString(schema, k));
+						}
+				%>
+					<div>
+						<div class="label"><i18n:text key="administration.configuration.title.${k}" /></div>
+						<div class="value">
+							<% if (k.endsWith(".enabled")) { %>
+								<input type="checkbox" name="${k}" class="finput cloud_backup_checkbox" style="width: auto;" <c:if test="${v}">checked="checked"</c:if>>
+							<% } else if (k.endsWith(".app_secret") || k.endsWith(".access_token") || k.endsWith(".refresh_token")) { %>
+								<input type="password" name="${k}" class="finput" value="<c:out value="${v}"/>">
+							<% } else { %>
+								<input type="text" name="${k}" class="finput" value="<c:out value="${v}"/>">
+							<% } %>
+						</div>
+						<div class="clear"></div>
+					</div>
+				<% } %>
+					<div>
+						<div class="label">Autenticacao Dropbox</div>
+						<div class="value">
+							<a class="button" id="dropbox_connect_button" onclick="Configurations.dropboxConnect(this);">Conectar com Dropbox</a>
+							<div id="dropbox_connect_status" style="margin-top: 8px;">Clique em "Conectar com Dropbox" para gerar o Refresh Token automaticamente.</div>
+						</div>
+						<div class="clear"></div>
+					</div>
+				</div>
+				<div class="cloud_service_section" data-service="box">
+				<h3 style="margin-top: 25px; border-bottom: 1px solid #ccc; padding-bottom: 5px;">Box</h3>
+				<% 
+					String[] boxKeys = {
+						Constants.CONFIG_BACKUP_BOX_ENABLED,
+						Constants.CONFIG_BACKUP_BOX_CLIENT_ID,
+						Constants.CONFIG_BACKUP_BOX_CLIENT_SECRET,
+						Constants.CONFIG_BACKUP_BOX_ACCESS_TOKEN,
+						Constants.CONFIG_BACKUP_BOX_REFRESH_TOKEN,
+						Constants.CONFIG_BACKUP_BOX_FOLDER_ID
+					};
+					for (String k : boxKeys) {
+						request.setAttribute("k", k);
+						if (k.endsWith(".enabled")) {
+							request.setAttribute("v", Configurations.getBoolean(schema, k));
+						} else {
+							request.setAttribute("v", Configurations.getString(schema, k));
+						}
+				%>
+					<div>
+						<div class="label"><i18n:text key="administration.configuration.title.${k}" /></div>
+						<div class="value">
+							<% if (k.endsWith(".enabled")) { %>
+								<input type="checkbox" name="${k}" class="finput cloud_backup_checkbox" style="width: auto;" <c:if test="${v}">checked="checked"</c:if>>
+							<% } else if (k.endsWith(".client_secret") || k.endsWith(".access_token") || k.endsWith(".refresh_token")) { %>
+								<input type="password" name="${k}" class="finput" value="<c:out value="${v}"/>">
+							<% } else { %>
+								<input type="text" name="${k}" class="finput" value="<c:out value="${v}"/>">
+							<% } %>
+						</div>
+						<div class="clear"></div>
+					</div>
+				<% } %>
+				</div>
+
+				<div class="cloud_service_section" data-service="pcloud">
+				<h3 style="margin-top: 25px; border-bottom: 1px solid #ccc; padding-bottom: 5px;">pCloud</h3>
+				<% 
+					String[] pcKeys = {
+						Constants.CONFIG_BACKUP_PCLOUD_ENABLED,
+						Constants.CONFIG_BACKUP_PCLOUD_AUTH_TOKEN,
+						Constants.CONFIG_BACKUP_PCLOUD_PATH
+					};
+					for (String k : pcKeys) {
+						request.setAttribute("k", k);
+						if (k.endsWith(".enabled")) {
+							request.setAttribute("v", Configurations.getBoolean(schema, k));
+						} else {
+							request.setAttribute("v", Configurations.getString(schema, k));
+						}
+				%>
+					<div>
+						<div class="label"><i18n:text key="administration.configuration.title.${k}" /></div>
+						<div class="value">
+							<% if (k.endsWith(".enabled")) { %>
+								<input type="checkbox" name="${k}" class="finput cloud_backup_checkbox" style="width: auto;" <c:if test="${v}">checked="checked"</c:if>>
+							<% } else if (k.endsWith(".auth_token")) { %>
+								<input type="password" name="${k}" class="finput" value="<c:out value="${v}"/>">
+							<% } else { %>
+								<input type="text" name="${k}" class="finput" value="<c:out value="${v}"/>">
+							<% } %>
+						</div>
+						<div class="clear"></div>
+					</div>
+				<% } %>
+				</div>
+
+				<div class="cloud_service_section" data-service="mega">
+				<h3 style="margin-top: 25px; border-bottom: 1px solid #ccc; padding-bottom: 5px;">MEGA</h3>
+				<% 
+					String[] megaKeys = {
+						Constants.CONFIG_BACKUP_MEGA_ENABLED,
+						Constants.CONFIG_BACKUP_MEGA_CMD_PATH,
+						Constants.CONFIG_BACKUP_MEGA_EMAIL,
+						Constants.CONFIG_BACKUP_MEGA_PASSWORD,
+						Constants.CONFIG_BACKUP_MEGA_REMOTE_PATH
+					};
+					for (String k : megaKeys) {
+						request.setAttribute("k", k);
+						if (k.endsWith(".enabled")) {
+							request.setAttribute("v", Configurations.getBoolean(schema, k));
+						} else {
+							request.setAttribute("v", Configurations.getString(schema, k));
+						}
+				%>
+					<div>
+						<div class="label"><i18n:text key="administration.configuration.title.${k}" /></div>
+						<div class="value">
+							<% if (k.endsWith(".enabled")) { %>
+								<input type="checkbox" name="${k}" class="finput cloud_backup_checkbox" style="width: auto;" <c:if test="${v}">checked="checked"</c:if>>
+							<% } else if (k.endsWith(".password")) { %>
+								<input type="password" name="${k}" class="finput" value="<c:out value="${v}"/>">
+							<% } else { %>
+								<input type="text" name="${k}" class="finput" value="<c:out value="${v}"/>">
+							<% } %>
+						</div>
+						<div class="clear"></div>
+					</div>
+				<% } %>
+				</div>
+
+				<div class="cloud_service_section" data-service="proton">
+				<h3 style="margin-top: 25px; border-bottom: 1px solid #ccc; padding-bottom: 5px;">Proton Drive</h3>
+				<% 
+					String[] protonKeys = {
+						Constants.CONFIG_BACKUP_PROTON_ENABLED,
+						Constants.CONFIG_BACKUP_PROTON_RCLONE_PATH,
+						Constants.CONFIG_BACKUP_PROTON_RCLONE_REMOTE
+					};
+					for (String k : protonKeys) {
+						request.setAttribute("k", k);
+						if (k.endsWith(".enabled")) {
+							request.setAttribute("v", Configurations.getBoolean(schema, k));
+						} else {
+							request.setAttribute("v", Configurations.getString(schema, k));
+						}
+				%>
+					<div>
+						<div class="label"><i18n:text key="administration.configuration.title.${k}" /></div>
+						<div class="value">
+							<% if (k.endsWith(".enabled")) { %>
+								<input type="checkbox" name="${k}" class="finput cloud_backup_checkbox" style="width: auto;" <c:if test="${v}">checked="checked"</c:if>>
+							<% } else { %>
+								<input type="text" name="${k}" class="finput" value="<c:out value="${v}"/>">
+							<% } %>
+						</div>
+						<div class="clear"></div>
+					</div>
+				<% } %>
+				</div>
+
+			</div>
+		</fieldset>
+
+
 		<div class="footer_buttons">
 			<a class="button center main_button" onclick="Configurations.save(this);"><i18n:text key="common.save" /></a>
 		</div>		

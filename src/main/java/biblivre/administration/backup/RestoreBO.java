@@ -28,10 +28,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
@@ -42,8 +45,11 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 
+import biblivre.administration.backup.services.CloudBackupService;
+import biblivre.administration.backup.services.CloudBackupServiceRegistry;
 import biblivre.administration.setup.DataMigrationDAO;
 import biblivre.administration.setup.State;
 import biblivre.core.AbstractBO;
@@ -85,7 +91,7 @@ public class RestoreBO extends AbstractBO {
 		for (File backup : FileUtils.listFiles(path, new String[]{"b4bz", "b5bz"}, false)) {
 			RestoreDTO dto = this.getRestoreDTO(backup);
 
-			if (dto.isValid() & dto!= null) {
+			if (dto != null && dto.isValid()) {
 				list.add(dto);
 			}
 		}
@@ -649,6 +655,57 @@ public class RestoreBO extends AbstractBO {
 
 		return dto;
 	}	
+
+	public File downloadBackupFromCloud(String service, String filename) {
+		BackupBO backupBO = BackupBO.getInstance(this.getSchema());
+		File path = backupBO.getBackupDestination();
+
+		if (path == null) {
+			path = FileUtils.getTempDirectory();
+		}
+
+		if (path == null) {
+			throw new ValidationException("administration.maintenance.backup.error.invalid_restore_path");
+		}
+
+		try {
+			FileUtils.forceMkdir(path);
+			File destination = new File(path, filename);
+			CloudBackupService cloudService = CloudBackupServiceRegistry.getService(service);
+			if (cloudService == null || !cloudService.supportsRemoteFiles()) {
+				throw new ValidationException("administration.maintenance.backup.error.invalid_cloud_service");
+			}
+
+			cloudService.downloadBackup(this.getSchema(), filename, destination);
+
+			if (!destination.exists()) {
+				throw new ValidationException("administration.maintenance.backup.error.cloud_download_failed");
+			}
+
+			return destination;
+		} catch (ValidationException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new ValidationException("administration.maintenance.backup.error.cloud_download_failed", e);
+		}
+	}
+
+	public List<String> listCloudBackups(String service) {
+		try {
+			CloudBackupService cloudService = CloudBackupServiceRegistry.getService(service);
+			if (cloudService == null || !cloudService.supportsRemoteFiles()) {
+				throw new ValidationException("administration.maintenance.backup.error.invalid_cloud_service");
+			}
+			Set<String> files = new LinkedHashSet<String>();
+			files.addAll(cloudService.listBackups(this.getSchema()));
+
+			return new ArrayList<String>(files);
+		} catch (ValidationException e) {
+			throw e;
+		} catch (Exception e) {
+			throw new ValidationException("administration.maintenance.backup.error.cloud_list_failed", e);
+		}
+	}
 	
 	private RestoreDTO getRestoreDTO(File file) {
 		ZipFile zip = null;

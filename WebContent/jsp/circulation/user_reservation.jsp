@@ -260,7 +260,7 @@
 					{#foreach $T.data as record}
 						<div class="result {#cycle values=['odd', 'even']}" rel="{$T.record.id}">
 							<div class="buttons">
-								<a class="button center" onclick="CatalogingSearch.reserve('{$T.record.id}', 'self_reserve');"><i18n:text key="circulation.reservation.button.reserve" /></a>
+								<a class="button center" onclick="CatalogingSearch.reserveHolding('{$T.record.id}', 'self_reserve');"><i18n:text key="circulation.reservation.button.reserve" /></a>
 							</div>
  
 							<div class="record">
@@ -274,6 +274,25 @@
 	
 								<div class="ncspacer"></div>
 								<div class="ncspacer"></div>						
+
+								<!-- Holdings -->
+								<div class="user_reservation acession_reservation">
+									{#if $T.record.holdings && $T.record.holdings.length > 0}
+										{#foreach $T.record.holdings as holding}
+											<div class="holding_record">
+												{#if $T.holding.accession_number}<label><i18n:text key="search.holding.accession_number" /></label>: {$T.holding.accession_number}<br/>{#/if}
+												<input type="radio" class="holding_radio" name="holding_select_{$T.record.id}" value="{$T.holding.id}" />
+												{#if $T.holding.lent}<label><i18n:text key="search.holding.lending_state" /></label>: {$T.holding.lent}<br/>{#/if}											
+												{#if $T.holding.shelf_location || $T.holding.location_d}
+													<label><i18n:text key="search.holding.shelf_location" /></label>: {$T.holding.shelf_location || ''} {$T.holding.location_d || ''}<br/>
+												{#/if}
+											</div>
+											<div class="ncspacer"></div>
+											<div class="ncspacer"></div>	
+										{#/for}
+									{#/if}
+								</div>
+								<!-- Holdings -->
 
 								<label><i18n:text key="search.bibliographic.holdings_count" /></label>: {$T.record.holdings_count}
 								-

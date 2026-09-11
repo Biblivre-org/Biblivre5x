@@ -252,7 +252,9 @@ public class AuthorizationPoints implements Serializable {
 		this.addAuthPoint("acquisition.order", "delete", AuthorizationPointTypes.ACQUISITION_ORDER_DELETE);
 		
 		this.addAuthPoint("administration.configurations", "save", AuthorizationPointTypes.ADMINISTRATION_CONFIGURATIONS);
-		this.addAuthPoint("administration.configurations", "ignore_update", AuthorizationPointTypes.MENU_OTHER);		
+		this.addAuthPoint("administration.configurations", "google_drive_auth_url", AuthorizationPointTypes.ADMINISTRATION_CONFIGURATIONS);
+		this.addAuthPoint("administration.configurations", "google_drive_exchange_code", AuthorizationPointTypes.ADMINISTRATION_CONFIGURATIONS);
+		this.addAuthPoint("administration.configurations", "ignore_update", AuthorizationPointTypes.MENU_OTHER);
 
 		this.addAuthPoint("administration.indexing", "reindex", AuthorizationPointTypes.ADMINISTRATION_INDEXING);
 		this.addAuthPoint("administration.indexing", "progress", AuthorizationPointTypes.ADMINISTRATION_INDEXING);
@@ -268,7 +270,10 @@ public class AuthorizationPoints implements Serializable {
 		this.addAuthPoint("administration.backup", "prepare", AuthorizationPointTypes.ADMINISTRATION_BACKUP);
 		this.addAuthPoint("administration.backup", "backup", AuthorizationPointTypes.ADMINISTRATION_BACKUP);
 		this.addAuthPoint("administration.backup", "download", AuthorizationPointTypes.ADMINISTRATION_BACKUP);		
-		this.addAuthPoint("administration.backup", "progress", AuthorizationPointTypes.ADMINISTRATION_BACKUP);		
+		this.addAuthPoint("administration.backup", "progress", AuthorizationPointTypes.ADMINISTRATION_BACKUP);
+		this.addAuthPoint("administration.backup", "cloud_progress", AuthorizationPointTypes.ADMINISTRATION_BACKUP);
+		this.addAuthPoint("administration.backup", "cloudProgress", AuthorizationPointTypes.ADMINISTRATION_BACKUP);
+		this.addAuthPoint("administration.backup", "cloudprogress", AuthorizationPointTypes.ADMINISTRATION_BACKUP);
 
 		this.addAuthPoint("administration.usertype", "search", AuthorizationPointTypes.ADMINISTRATION_USERTYPE_LIST);
 		this.addAuthPoint("administration.usertype", "paginate", AuthorizationPointTypes.ADMINISTRATION_USERTYPE_LIST);

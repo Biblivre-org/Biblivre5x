@@ -45,7 +45,7 @@
 						<div class="expand" onclick="Administration.backup.showAll(this);">{_('administration.maintenance.backup.show_all', [$T.backups.length])}</div>
 					{#/if}
 				
-					<a class="backup {#if $T.backup$first}last_backup{#/if} {#if $T.backup$index > 4}hidden_backup{#/if}" rel="{$T.backup.id}" href="?controller=download&module=administration.backup&action=download&id={$T.backup.id}" target="_blank">
+					<a class="backup {#if $T.backup$first}last_backup{#/if} {#if $T.backup$index > 4}hidden_backup{#/if}" rel="{$T.backup.id}" href="?controller=download&module=administration.backup&action=download&id={$T.backup.id}">
 
 						{_d($T.backup.created, 'd t')} - {_('administration.maintenance.backup.label_' + $T.backup.type)}
 
@@ -101,6 +101,21 @@
 
 		<fieldset class="backup">
 			<legend><i18n:text key="administration.maintenance.backup.title" /></legend>
+
+			<div class="progress">
+				<div class="progress_text"><i18n:text key="common.wait" /></div>
+				<div class="progress_bar">
+					<div class="progress_bar_outer"><div class="progress_bar_inner"></div></div>
+				</div>
+			</div>
+		</fieldset>
+	</div>
+
+	<div id="cloud_backup_popup" class="popup">
+		<div class="close" onclick="Administration.backup.cancelCloudProgress();"><i18n:text key="common.close" /></div>
+
+		<fieldset class="backup">
+			<legend><i18n:text key="administration.maintenance.backup.title" /><span class="cloud_service_label"></span></legend>
 
 			<div class="progress">
 				<div class="progress_text"><i18n:text key="common.wait" /></div>

@@ -286,7 +286,7 @@ public abstract class RecordDAO extends AbstractDAO {
 			}
 			
 	        if (reservedOnly) {
-	        	sql.append("AND id in (SELECT DISTINCT record_id FROM reservations WHERE expires > localtimestamp) ");
+	        	sql.append("AND id in (SELECT DISTINCT holding_id FROM reservations WHERE expires > localtimestamp) ");
 	        }
 
 			PreparedStatement pst = con.prepareStatement(sql.toString());
@@ -542,11 +542,13 @@ public abstract class RecordDAO extends AbstractDAO {
 
 				sql.append(") R ");
 			}
-			
+						
 			sql.append("LEFT JOIN ").append(this.recordType).append("_idx_sort S ");
-			sql.append("ON S.record_id = R.id AND S.indexing_group_id = ? ");
+			sql.append("ON S.record_id = R.id AND S.indexing_group_id = ? ");			  
+			sql.append("ORDER BY sort NULLS LAST, R.id ASC OFFSET ? LIMIT ?;");			 
 
-			sql.append("ORDER BY sort NULLS LAST, R.id ASC OFFSET ? LIMIT ?;");
+			
+			System.out.println("SQL: " + sql);
 			
 			int index = 1;
 			

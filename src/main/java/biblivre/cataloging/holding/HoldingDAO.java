@@ -44,6 +44,7 @@ import biblivre.cataloging.enums.HoldingAvailability;
 import biblivre.cataloging.enums.RecordDatabase;
 import biblivre.cataloging.search.SearchDTO;
 import biblivre.cataloging.search.SearchTermDTO;
+import biblivre.circulation.lending.LendingDAO;
 import biblivre.circulation.user.UserDTO;
 import biblivre.core.AbstractDAO;
 import biblivre.core.AbstractDTO;
@@ -930,4 +931,36 @@ public class HoldingDAO extends AbstractDAO {
 
 		return dto;		
 	}
+
+
+	public LendingDAO dao;
+
+	public DTOCollection<HoldingDTO> searchHoldingAvailable(int holdingId) {
+		DTOCollection<HoldingDTO> list = new DTOCollection<HoldingDTO>();
+		
+		Connection con = null;
+		try {
+			con = this.getConnection();
+			
+			StringBuilder sql = new StringBuilder();
+			sql.append("SELECT * FROM biblio_holdings WHERE id = ? and availability = 'available';");
+			
+			PreparedStatement pst = con.prepareStatement(sql.toString());
+			pst.setInt(1, holdingId);
+
+			ResultSet rs = pst.executeQuery();
+			while (rs.next()) {
+				list.add((HoldingDTO)this.populateDTO(rs));
+			}
+
+		} catch (Exception e) {
+			throw new DAOException(e);
+		} finally {
+			this.closeConnection(con);
+		}
+
+		return list;
+	}
+
+
 }

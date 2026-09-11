@@ -18,10 +18,166 @@
 	<link rel="stylesheet" type="text/css" href="static/styles/biblivre.circulation.css" />	
 	<link rel="stylesheet" type="text/css" href="static/styles/biblivre.cataloging.css" />
 
+
+	
+	<!-- CSS do Menu (Inline para garantir carregamento) -->
+	<style>
+		/* Estrutura base */
+		.treeview,
+		.treeview ul {
+			list-style: none;
+			margin: 0;
+			padding: 0;
+		}
+
+		.treeview li {
+			margin: 4px 0;
+		}
+
+		/* Botão do nó */
+		.tree-toggle {
+			width: 100%;
+			background: none;
+			border: none;
+			padding: 6px 8px;
+			display: flex;
+			align-items: center;
+			gap: 6px;
+			text-align: left;
+			border-radius: 6px;
+			cursor: pointer;
+			transition: background-color 0.2s ease;
+		}
+
+		.tree-toggle:hover {
+			background-color: #f1f3f5;
+		}
+
+		/* Ícone + / - */
+		.icon {
+			width: 16px;
+			font-weight: bold;
+			color: #0d6efd;
+			display: inline-block;
+			text-align: center;
+		}
+
+		.tree-toggle[aria-expanded="true"] .icon::after {
+			content: "−";
+		}
+		
+		.tree-toggle[aria-expanded="false"] .icon::after,
+		.tree-toggle:not([aria-expanded]) .icon::after {
+			content: "+";
+		}
+
+		/* Bootstrap Collapse Essentials (Polyfill para falta de CSS do Bootstrap) */
+		.collapse:not(.show) {
+			display: none !important;
+		}
+		
+		.collapse.show {
+			display: block !important;
+		}
+
+		.collapsing {
+			height: 0;
+			overflow: hidden;
+			transition: height 0.35s ease;
+		}
+
+		/* SUBMENUS DESLOCADOS (ESTILO EXPLORER) */
+		.children {
+			margin-left: 32px;        /* deslocamento à direita */
+			padding-left: 10px;
+			 border-left: 1px dotted #ced4da;
+		}
+
+		.children.collapse {
+			transition: all 0.25s ease;
+		}
+
+		/* Itens folha */
+		.leaf {
+			padding: 0px 40px;
+			border-radius: 6px;
+			cursor: pointer;
+			transition: background-color 0.2s ease;
+		}
+
+		.leaf:hover {
+			background-color: #f1f3f5;
+		}
+		
+		.treeview .children > .record {
+			background-color: #f6f7f9;
+			border: 1px solid #cfd4da;
+			border-radius: 6px;
+			padding: 10px 12px;
+			margin: 10px 0;
+			box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+		}
+		.user_reservation {
+			border-radius: 6px;
+		}
+
+		.acession_reservation {
+			background-color: #f6f7f9;			
+			border-radius: 6px;
+			padding: 12px 14px;
+			margin: 12px 0;
+			box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+		}
+		
+		.holding_radio {
+			float: right;
+			margin-top: -2px;
+			border-radius: 50%;
+		}
+		
+		.holding_record {
+			transition: box-shadow 0.2s ease;
+			border-radius: 6px;
+			padding: 10px;
+		}
+		
+		.holding_record:hover {
+			/*box-shadow: 0 3px 12px rgba(0,0,0,0.15);*/
+		}
+		
+	</style>
+	
+			<!-- Script do Menu (Refatorado para máxima compatibilidade) -->
+	<style type="text/css">
+		/* Layout específico da lista de reservas */
+		.search_results_box .result {
+			display: flex;
+			align-items: stretch;
+		}
+
+		.search_results_box .result .buttons {
+			float: none;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			order: 2;            /* botão visualmente à direita */
+			min-width: 120px;    /* largura consistente da coluna cinza */
+		}
+
+		.search_results_box .result .record {
+			flex: 1 1 auto;
+			order: 1;
+		}
+	</style>
+	
+
 	<script type="text/javascript" src="static/scripts/biblivre.search.js"></script>
 	<script type="text/javascript" src="static/scripts/biblivre.circulation.search.js"></script>
 	<script type="text/javascript" src="static/scripts/biblivre.cataloging.search.js"></script>	
 	<script type="text/javascript" src="static/scripts/biblivre.circulation.reservation.js"></script>
+	<script type="text/javascript" src="static/scripts/biblivre.holding.search.js"></script>
+	<script type="text/javascript" src="static/scripts/biblivre.input.js"></script>
+	
 	<script type="text/javascript">
 		var CirculationSearch = CreateSearch(CirculationSearchClass, {
 			type: 'circulation.reservation',
@@ -44,6 +200,95 @@
 			enableHistory: false
 		});
 	</script>
+	
+	<script>
+		window.toggleBiblivreMenu = function(e, toggle, targetId) {
+			if (!targetId) return;
+
+			e = e || window.event;
+
+			var id = (targetId.indexOf('#') === 0) ? targetId.substring(1) : targetId;
+			var target = document.getElementById(id);
+			var recordContainer = toggle;
+
+			while (recordContainer && (!recordContainer.className || recordContainer.className.toString().indexOf('record') === -1)) {
+				recordContainer = recordContainer.parentNode;
+			}
+			
+			if (!target) {
+				console.error("Menu target not found:", id);
+				return;
+			}
+
+			var isExpanded = toggle.getAttribute("aria-expanded") === "true";
+
+			// Accordion: Fechar outros que estejam abertos
+			if (!isExpanded) {
+				var allOpen = document.querySelectorAll(".children.show");
+				for (var i = 0; i < allOpen.length; i++) {
+					var open = allOpen[i];
+					if (open !== target) {
+						open.classList.remove("show");
+						open.style.display = "none";
+						var selectorId = (typeof CSS !== 'undefined' && CSS.escape) ? CSS.escape(open.id) : open.id;
+						var otherToggle = document.querySelector('[data-bs-target="#' + selectorId + '"]');
+						if (otherToggle) {
+							otherToggle.setAttribute("aria-expanded", "false");
+						}
+					}
+				}
+			}
+
+			// Toggle do item atual
+			if (isExpanded) {
+				target.classList.remove("show");
+				target.style.display = "none";
+				target.style.height = "";
+				if (recordContainer) {
+					recordContainer.style.height = "";
+					recordContainer.style.overflow = "";
+				}
+				toggle.setAttribute("aria-expanded", "false");
+			} else {
+				target.classList.add("show");
+				target.style.display = "block";
+				target.style.height = "auto";
+				target.style.overflow = "visible";
+				if (recordContainer) {
+					recordContainer.style.height = "auto";
+					recordContainer.style.overflow = "visible";
+				}
+				toggle.setAttribute("aria-expanded", "true");
+			}
+			
+			if (e && e.stopPropagation) {
+				e.stopPropagation();
+				if (e.preventDefault) {
+					e.preventDefault();
+				}
+			}
+		};
+
+		document.addEventListener('change', function(ev) {
+			var target = ev.target || ev.srcElement;
+			if (!target || !target.classList || !target.classList.contains('holding_radio')) {
+				return;
+			}
+
+			var radios = document.querySelectorAll('.holding_radio');
+			for (var i = 0; i < radios.length; i++) {
+				if (radios[i] !== target) {
+					radios[i].checked = false;
+				}
+			}
+		});
+	</script>
+	
+	
+	
+	
+	
+	
 </layout:head>
 
 <%
@@ -114,6 +359,7 @@
 								{#if $T.info.biblio.isbn}<label><i18n:text key="search.bibliographic.isbn" /></label>: {$T.info.biblio.isbn}<br/>{#/if}
 								{#if $T.info.biblio.issn}<label><i18n:text key="search.bibliographic.issn" /></label>: {$T.info.biblio.issn}<br/>{#/if}
 								{#if $T.info.biblio.isrc}<label><i18n:text key="search.bibliographic.isrc" /></label>: {$T.info.biblio.isrc}<br/>{#/if}
+								{#if $T.info.holding && $T.info.holding.accession_number}<label><i18n:text key="search.holding.accession_number" /></label>: {$T.info.holding.accession_number}<br/>{#/if}
 
 								<div class="ncspacer"></div>
 								<div class="ncspacer"></div>
@@ -286,31 +532,84 @@
 				<textarea class="search_results_template template"><!-- 
 					{#foreach $T.data as record}
 						<div class="result {#cycle values=['odd', 'even']}" rel="{$T.record.id}">
-							<div class="buttons">
-								<a class="button center" onclick="CatalogingSearch.reserve('{$T.record.id}');"><i18n:text key="circulation.reservation.button.reserve" /></a>
+							<div class="buttons reservation_buttons">
+								<a class="button center" onclick="CatalogingSearch.reserveHolding('{$T.record.id}');"><i18n:text key="circulation.reservation.button.reserve" /></a>
 							</div>
 
-							<div class="record">
-								{#if $T.record.title}<label><i18n:text key="search.bibliographic.title" /></label>: {$T.record.title}<br/>{#/if}
-								{#if $T.record.author}<label><i18n:text key="search.bibliographic.author" /></label>: {$T.record.author}<br/>{#/if}
-								{#if $T.record.publication_year}<label><i18n:text key="search.bibliographic.publication_year" /></label>: {$T.record.publication_year}<br/>{#/if}
-								{#if $T.record.shelf_location}<label><i18n:text key="search.bibliographic.shelf_location" /></label>: {$T.record.shelf_location}<br/>{#/if}
-								{#if $T.record.isbn}<label><i18n:text key="search.bibliographic.isbn" /></label>: {$T.record.isbn}<br/>{#/if}
-								{#if $T.record.issn}<label><i18n:text key="search.bibliographic.issn" /></label>: {$T.record.issn}<br/>{#/if}
-								{#if $T.record.isrc}<label><i18n:text key="search.bibliographic.isrc" /></label>: {$T.record.isrc}<br/>{#/if}
-	
+							<div class="record" style="overflow: hidden;">
+								<!-- SUBSTITUICAO PELO MENU ARVORE -->
+								<nav aria-label="Menu de livros">
+									<ul class="treeview" role="tree">
+										<!-- NÓ COM FILHOS -->
+										<li class="node" role="treeitem" aria-expanded="false">
+											<button class="tree-toggle"
+													type="button"
+													onclick="toggleBiblivreMenu(event, this, '#obra_{$T.record.id}');"
+													data-bs-target="#obra_{$T.record.id}"
+													aria-expanded="false"
+													aria-controls="obra_{$T.record.id}">
+
+												<span class="icon"></span>
+												<label><i18n:text key="search.bibliographic.title" />:</label>
+												<span class="label">{$T.record.title}</span>											
+											</button>
+
+											<!-- SUBMENU -->
+											<ul id="obra_{$T.record.id}" class="children collapse" role="group">
+												<li role="treeitem">
+													<label><i18n:text key="search.bibliographic.author" />:</label>	{$T.record.author}
+												</li>
+												<li role="treeitem">
+													<label><i18n:text key="search.bibliographic.publication_year" />:</label> {$T.record.publication_year}
+												</li>
+												<li role="treeitem">
+												{#if $T.record.isbn}<label><i18n:text key="search.bibliographic.isbn" />:</label> {$T.record.isbn}<br/>{#/if}
+												</li>
+												<li role="treeitem">
+												{#if $T.record.issn}<label><i18n:text key="search.bibliographic.issn" />:</label> {$T.record.issn}<br/>{#/if}
+												</li>
+												<li role="treeitem">
+												{#if $T.record.isrc}<label><i18n:text key="search.bibliographic.isrc" />:</label> {$T.record.isrc}<br/>{#/if}
+												</li>		
+												
+												
+								<li class="leaf" role="treeitem">
 								<div class="ncspacer"></div>
 								<div class="ncspacer"></div>						
 
-								<label><i18n:text key="search.bibliographic.holdings_count" /></label>: {$T.record.holdings_count}
-								-
+								
+								
+								
+								
+								<!-- Holdings -->
+							<div class="user_reservation acession_reservation">
+								{#if $T.record.holdings && $T.record.holdings.length > 0}
+									{#foreach $T.record.holdings as holding}
+										<div class="holding_record">
+											{#if $T.holding.accession_number}<label><i18n:text key="search.holding.accession_number" /></label>: {$T.holding.accession_number}<br/>{#/if}
+											<input type="radio" class="holding_radio" name="holding_select_{$T.record.id}" value="{$T.holding.id}" />
+											{#if $T.holding.lent}<label><i18n:text key="search.holding.lending_state" /></label>: {$T.holding.lent}<br/>{#/if}											
+											{#if $T.holding.shelf_location || $T.holding.location_d}
+												<label><i18n:text key="search.holding.shelf_location" /></label>: {$T.holding.shelf_location || ''} {$T.holding.location_d || ''}<br/>
+											{#/if}
+										</div>
+									<div class="ncspacer"></div>
+									<div class="ncspacer"></div>	
+									{#/for}
+								{#/if}
+							</div>
+								<!-- Holdings -->
+								
 								<small>
 									<label><i18n:text key="search.bibliographic.holdings_available" /></label>: {$T.record.holdings_available}&#160;
 									<label><i18n:text key="search.bibliographic.holdings_lent" /></label>: {$T.record.holdings_lent}&#160;
 									<label><i18n:text key="search.bibliographic.holdings_reserved" /></label>: {$T.record.holdings_reserved}
 								</small>
-
-
+								
+						<div class="ncspacer"></div>
+						<div class="ncspacer"></div>
+						
+<!-- Este registro está reservado para os seguintes leitores: -->								
 								
 								{#if $T.record.reservationInfo !== undefined}
 									<div class="ncspacer"></div>
@@ -326,7 +625,15 @@
 											<label><i18n:text key="circulation.reservation.expiration_date" /></label>: {_d($T.info.reservation.expires, 'f')}<br/>
 										</div>
 									{#/foreach}
-								{#/if}								
+								{#/if}	
+								</li>
+												
+												
+											</ul>
+										</li>
+									</ul>
+								</nav>
+								
 							</div>
 							<div class="clear"></div>
 						</div>
@@ -337,4 +644,5 @@
 			<div class="paging_bar"></div>
 		</div>
 	</div>
+	
 </layout:body>

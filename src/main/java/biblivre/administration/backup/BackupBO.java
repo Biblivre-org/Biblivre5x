@@ -16,6 +16,7 @@
  * 
  * @author Alberto Wagner <alberto@biblivre.org.br>
  * @author Danniel Willian <danniel@biblivre.org.br>
+ * * Updated by Wilerson Lucas <xmidia@gmail.com>
  ******************************************************************************/
 package biblivre.administration.backup;
 
@@ -28,18 +29,22 @@ import java.io.OutputStream;
 import java.io.Writer;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Formatter;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.FileWriterWithEncoding;
 import org.apache.commons.lang3.StringUtils;
 
+import biblivre.administration.backup.services.CloudBackupService;
+import biblivre.administration.backup.services.CloudBackupServiceRegistry;
 import biblivre.core.AbstractBO;
 import biblivre.core.configurations.Configurations;
 import biblivre.core.file.DatabaseFile;
@@ -56,6 +61,8 @@ import br.org.biblivre.z3950server.utils.TextUtils;
 
 public class BackupBO extends AbstractBO {
 	private BackupDAO dao;
+	private static final Map<Integer, CloudUploadStatus> CLOUD_UPLOAD_STATUS = new ConcurrentHashMap<Integer, CloudUploadStatus>();
+	private static final Map<Integer, String> BACKUP_ERROR_STATUS = new ConcurrentHashMap<Integer, String>();
 
 	public static BackupBO getInstance(String schema) {
 		BackupBO bo = AbstractBO.getInstance(BackupBO.class, schema);
@@ -115,16 +122,16 @@ public class BackupBO extends AbstractBO {
 		
 		switch (dto.getType()) {
 			case FULL:
-				// schema, data and media for each schema (except media for public) + zip
-				steps = schemasCount * 3;
+				// schema, data e media + zip + validacao/finalizacao
+				steps = (schemasCount * 3) + 1;
 				break;
 			case EXCLUDE_DIGITAL_MEDIA:
-				// schema and data for each schema + zip
-				steps = (schemasCount * 2) + 1;
+				// schema e data + zip + validacao/finalizacao
+				steps = (schemasCount * 2) + 2;
 				break;
 			case DIGITAL_MEDIA_ONLY:
-				// media for each schema (except for public) + zip
-				steps = schemasCount;
+				// media + zip + validacao/finalizacao
+				steps = schemasCount + 1;
 				break;
 		}
 				
@@ -139,13 +146,253 @@ public class BackupBO extends AbstractBO {
 
 	public void backup(BackupDTO dto) {
 		try {
+			this.clearBackupErrorStatus(dto != null ? dto.getId() : null);
+			this.initCloudUploadStatus(dto);
 			this.createBackup(dto);
 	
 			if (dto.getBackup() != null) {
-				this.move(dto);
+				BackupTester tester = BackupTester.getInstance(this.getSchema());
+				boolean testPassed = tester.testBackup(dto.getBackup());
+				
+				if (!testPassed) {
+					throw new Exception("administration.maintenance.backup.error.test_failed");
+				}
+				
+				if (!this.move(dto)) {
+					throw new Exception("administration.maintenance.backup.error.couldnt_move_backup");
+				}
+
+				dto.increaseCurrentStep();
+				this.save(dto);
+				this.uploadToCloudServices(dto, dto.getBackup());
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			if (dto != null && dto.getId() != null) {
+				this.setBackupErrorStatus(dto.getId(), this.resolveBackupErrorMessage(e));
+			}
+
+			if (dto != null && dto.getBackup() != null && dto.getBackup().exists()) {
+				FileUtils.deleteQuietly(dto.getBackup());
+				dto.setBackup(null);
+				this.save(dto);
+			}
+
+			this.logger.error("Error creating or uploading backup: " + e.getMessage(), e);
+			this.clearCloudUploadStatus(dto != null ? dto.getId() : null);
+		}
+	}
+
+	public CloudUploadStatus getCloudUploadStatus(Integer id) {
+		return CLOUD_UPLOAD_STATUS.get(id);
+	}
+
+	public String getBackupErrorStatus(Integer id) {
+		return BACKUP_ERROR_STATUS.get(id);
+	}
+
+	private void setBackupErrorStatus(Integer id, String messageKey) {
+		if (id == null) {
+			return;
+		}
+
+		BACKUP_ERROR_STATUS.put(id, messageKey);
+	}
+
+	private void clearBackupErrorStatus(Integer id) {
+		if (id == null) {
+			return;
+		}
+
+		BACKUP_ERROR_STATUS.remove(id);
+	}
+
+	private String resolveBackupErrorMessage(Exception e) {
+		String message = e != null ? e.getMessage() : null;
+		if (StringUtils.isNotBlank(message) && message.startsWith("administration.")) {
+			return message;
+		}
+
+		return "administration.maintenance.backup.error.test_failed";
+	}
+
+	private void clearCloudUploadStatus(Integer id) {
+		if (id != null) {
+			CLOUD_UPLOAD_STATUS.remove(id);
+		}
+	}
+
+	private void initCloudUploadStatus(BackupDTO dto) {
+		if (dto == null || dto.getId() == null) {
+			return;
+		}
+
+		int total = this.countConfiguredCloudServices(this.getSchema());
+		if (total == 0) {
+			this.clearCloudUploadStatus(dto.getId());
+			return;
+		}
+
+		CLOUD_UPLOAD_STATUS.put(dto.getId(), new CloudUploadStatus(total));
+	}
+
+	private int countConfiguredCloudServices(String schema) {
+		return CloudBackupServiceRegistry.getConfiguredUploadServices(schema).size();
+	}
+
+	public boolean hasConfiguredCloudServices(String schema) {
+		return this.countConfiguredCloudServices(schema) > 0;
+	}
+
+	public void uploadToCloudServices(BackupDTO dto, File backupFile) {
+		System.out.println("\n=== INICIANDO UPLOAD TO CLOUD SERVICES ===");
+		String schema = this.getSchema();
+		Integer id = dto != null ? dto.getId() : null;
+		System.out.println("Schema: " + schema);
+		System.out.println("Backup file: " + (backupFile != null ? backupFile.getAbsolutePath() : "null"));
+
+		List<CloudService> services = this.buildCloudServices(schema, backupFile);
+		System.out.println("Número de serviços configurados: " + services.size());
+		if (services.isEmpty()) {
+			System.out.println("Nenhum serviço de cloud configurado!");
+			this.clearCloudUploadStatus(id);
+			return;
+		}
+
+		CloudUploadStatus status = null;
+		if (id != null) {
+			status = CLOUD_UPLOAD_STATUS.get(id);
+			if (status == null || status.getTotal() != services.size()) {
+				status = new CloudUploadStatus(services.size());
+				CLOUD_UPLOAD_STATUS.put(id, status);
+			}
+		} else {
+			status = new CloudUploadStatus(services.size());
+		}
+		
+		status.setActive(true);
+		status.setComplete(false);
+
+		for (CloudService service : services) {
+			System.out.println("\nProcessando serviço: " + service.getLabel());
+			status.setServiceLabel(service.getLabel());
+			try {
+				service.getUploader().upload();
+				System.out.println("Backup enviado pelo " + service.getLabel() + " com sucesso: " + backupFile.getName());
+			} catch (Exception e) {
+				System.out.println("ERRO no serviço " + service.getLabel() + ": " + e.getMessage());
+				e.printStackTrace();
+				this.logger.error("Error uploading backup to " + service.getLabel() + ": " + e.getMessage(), e);
+				status.incrementError();
+			} finally {
+				status.incrementCurrent();
+			}
+		}
+
+		status.setActive(false);
+		status.setComplete(true);
+		status.setServiceLabel(null);
+		System.out.println("\n=== UPLOAD TO CLOUD SERVICES CONCLUÍDO! ===");
+	}
+
+	private List<CloudService> buildCloudServices(String schema, File backupFile) {
+		System.out.println("buildCloudServices chamado para schema: " + schema);
+		List<CloudService> services = new ArrayList<CloudService>();
+
+		if (backupFile == null) {
+			System.out.println("backupFile é null!");
+			return services;
+		}
+
+		List<CloudBackupService> configuredServices = CloudBackupServiceRegistry.getConfiguredUploadServices(schema);
+		System.out.println("Serviços configurados retornados: " + configuredServices.size());
+		for (CloudBackupService service : configuredServices) {
+			System.out.println("Adicionando serviço: " + service.getLabel());
+			services.add(new CloudService(service.getLabel(), () -> service.uploadBackup(schema, backupFile)));
+		}
+
+		return services;
+	}
+
+	private interface CloudUploader {
+		void upload() throws Exception;
+	}
+
+	private static class CloudService {
+		private final String label;
+		private final CloudUploader uploader;
+
+		private CloudService(String label, CloudUploader uploader) {
+			this.label = label;
+			this.uploader = uploader;
+		}
+
+		public String getLabel() {
+			return label;
+		}
+
+		public CloudUploader getUploader() {
+			return uploader;
+		}
+	}
+
+	public static class CloudUploadStatus {
+		private final int total;
+		private int current;
+		private int errorCount;
+		private boolean complete;
+		private boolean active;
+		private String serviceLabel;
+
+		private CloudUploadStatus(int total) {
+			this.total = total;
+			this.current = 0;
+			this.errorCount = 0;
+			this.complete = false;
+			this.active = false;
+		}
+
+		public int getTotal() {
+			return total;
+		}
+
+		public int getCurrent() {
+			return current;
+		}
+
+		public int getErrorCount() {
+			return errorCount;
+		}
+
+		public boolean isComplete() {
+			return complete;
+		}
+
+		public boolean isActive() {
+			return active;
+		}
+
+		public String getServiceLabel() {
+			return serviceLabel;
+		}
+
+		private void incrementCurrent() {
+			this.current++;
+		}
+		
+		private void incrementError() {
+			this.errorCount++;
+		}
+
+		private void setComplete(boolean complete) {
+			this.complete = complete;
+		}
+
+		private void setActive(boolean active) {
+			this.active = active;
+		}
+
+		private void setServiceLabel(String serviceLabel) {
+			this.serviceLabel = serviceLabel;
 		}
 	}
 
@@ -282,7 +529,7 @@ public class BackupBO extends AbstractBO {
 
 			return true;
 		} catch(Exception e) {
-			e.printStackTrace();
+			this.logger.error("Error writing backup metadata: " + e.getMessage(), e);
 			return false;
 		} finally {
 			IOUtils.closeQuietly(writer);

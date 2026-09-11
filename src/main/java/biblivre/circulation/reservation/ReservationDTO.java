@@ -29,6 +29,7 @@ public class ReservationDTO extends AbstractDTO {
 	
 	private Integer id;
 	private Integer recordId;
+	private Integer holdingId;
 	private Integer userId;
 	private Date expires;
 	
@@ -52,6 +53,14 @@ public class ReservationDTO extends AbstractDTO {
 		this.recordId = recordId;
 	}
 
+	public Integer getHoldingId() {
+		return holdingId;
+	}
+
+	public void setHoldingId(Integer holdingId) {
+		this.holdingId = holdingId;
+	}
+	
 	public Integer getUserId() {
 		return this.userId;
 	}
@@ -83,4 +92,6 @@ public class ReservationDTO extends AbstractDTO {
 	public void setAuthor(String author) {
 		this.author = author;
 	}
+	
+	
 }

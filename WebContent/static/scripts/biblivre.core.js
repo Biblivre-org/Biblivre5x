@@ -1288,7 +1288,7 @@ Header.setTime = function() {
 	$.fn.progressbar = function(o) {
 		if (!o) {
 			this.find('.progress_text').text(_('common.wait'));
-			this.find('.progress_bar_inner').width('0%');
+			this.find('.progress_bar_inner').stop().css('width', '0%');
 			return this;
 		}
 		
@@ -1297,10 +1297,11 @@ Header.setTime = function() {
 		var current = parseInt(o.current, 10) || 0;
 		var total = parseInt(o.total, 10) || 0;
 		var secondary = parseInt(o.secondary_current, 10) || 0;
+		var animate = (o.animate === undefined) ? false : o.animate;
 
 		if (total == 0) {
 			this.find('.progress_text').text(_('common.calculating'));
-			this.find('.progress_bar_inner').stop().width(0);
+			this.find('.progress_bar_inner').stop().css('width', 0);
 			return this;
 		}
 
@@ -1311,7 +1312,12 @@ Header.setTime = function() {
 		secondary = (secondary) ? '[' + secondary + '] ' : '';
 		
 		this.find('.progress_text').text(secondary + _f(current) + ' / ' + _f(total) + ' (' + progress.toFixed(1) + '%)');
-		this.find('.progress_bar_inner').stop().width(progress + '%');
+		var $bar = this.find('.progress_bar_inner');
+		if (animate) {
+			$bar.stop().animate({ width: progress + '%' }, 500, 'swing');
+		} else {
+			$bar.stop().css('width', progress + '%');
+		}
 
 		return this;
 	};

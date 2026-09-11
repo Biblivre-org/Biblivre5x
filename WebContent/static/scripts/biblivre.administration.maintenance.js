@@ -30,6 +30,11 @@ $(document).ready(function() {
 	if (div.size() > 0) {
 		div.setTemplateElement('last_backups_list_template');
 	}
+
+	$(document).on('click', '#last_backups_list a.backup', function(e) {
+		e.preventDefault();
+		Administration.backup.triggerDownload($(this).attr('href'));
+	});
 	
 	Administration.backup.list();
 });
@@ -37,6 +42,7 @@ $(document).ready(function() {
 //BACKUP
 
 Administration.backup.selectedId = null;
+Administration.backup.downloadFrameId = 'backup_download_iframe';
 
 Administration.backup.list = function(id) {
 	$('#last_backups_list').empty();
@@ -68,6 +74,8 @@ Administration.backup.showAll = function(el) {
 };
 
 Administration.backup.submit = function(type) {
+	Administration.backup.showPopupProgress();
+
 	var schemas = [];
 	
 	$('#multischema :checkbox:checked[name="library"]').each(function() {
@@ -114,16 +122,73 @@ Administration.backup.submit = function(type) {
 						return;
 					}
 				}
+			}).fail(function() {
+				Administration.backup.cancel();
 			});
 		}
+	}).fail(function() {
+		Administration.backup.cancel();
 	});
-	Administration.backup.showPopupProgress();
+};
+
+Administration.backup.ensureBackupPopup = function() {
+	var popup = $('#backup_popup');
+	if (popup.length > 0) {
+		return popup;
+	}
+
+	popup = $('<div id="backup_popup" class="popup"></div>');
+
+	$('<div class="close"></div>')
+		.text(_('common.close'))
+		.appendTo(popup)
+		.click(Administration.backup.cancel);
+
+	var fieldset = $('<fieldset class="backup"></fieldset>').appendTo(popup);
+	$('<legend></legend>').text(_('administration.maintenance.backup.title')).appendTo(fieldset);
+
+	var progress = $('<div class="progress"></div>').appendTo(fieldset);
+	$('<div class="progress_text"></div>').text(_('common.wait')).appendTo(progress);
+	var progressBar = $('<div class="progress_bar"></div>').appendTo(progress);
+	var progressOuter = $('<div class="progress_bar_outer"></div>').appendTo(progressBar);
+	$('<div class="progress_bar_inner"></div>').appendTo(progressOuter);
+
+	popup.appendTo('body');
+	return popup;
+};
+
+Administration.backup.ensureCloudPopup = function() {
+	var popup = $('#cloud_backup_popup');
+	if (popup.length > 0) {
+		return popup;
+	}
+
+	popup = $('<div id="cloud_backup_popup" class="popup"></div>');
+
+	$('<div class="close"></div>')
+		.text(_('common.close'))
+		.appendTo(popup)
+		.click(Administration.backup.cancelCloudProgress);
+
+	var fieldset = $('<fieldset class="backup"></fieldset>').appendTo(popup);
+	var legend = $('<legend></legend>').appendTo(fieldset);
+	legend.append(document.createTextNode(_('administration.maintenance.backup.title')));
+	legend.append('<span class="cloud_service_label"></span>');
+
+	var progress = $('<div class="progress"></div>').appendTo(fieldset);
+	$('<div class="progress_text"></div>').text(_('common.wait')).appendTo(progress);
+	var progressBar = $('<div class="progress_bar"></div>').appendTo(progress);
+	var progressOuter = $('<div class="progress_bar_outer"></div>').appendTo(progressBar);
+	$('<div class="progress_bar_inner"></div>').appendTo(progressOuter);
+
+	popup.appendTo('body');
+	return popup;
 };
 
 Administration.backup.showPopupProgress = function() {
 	Core.showOverlay();
 
-	$('#backup_popup')
+	Administration.backup.ensureBackupPopup()
 		.appendTo('body')
 		.show()
 		.center();
@@ -131,8 +196,31 @@ Administration.backup.showPopupProgress = function() {
 	$('#backup_popup .progress').progressbar(); 
 };
 
+Administration.backup.ensurePopupProgress = function() {
+	var popup = Administration.backup.ensureBackupPopup();
+	if (popup.length === 0) {
+		return;
+	}
+
+	if (!popup.is(':visible')) {
+		Core.showOverlay();
+		popup
+			.appendTo('body')
+			.show()
+			.center();
+	}
+
+	popup.find('.progress').progressbar();
+};
+
 Administration.backup.progressTimeout = null;
 Administration.backup.progressXHR = null;
+Administration.backup.cloudProgressTimeout = null;
+Administration.backup.cloudProgressXHR = null;
+Administration.backup.cloudSelectedId = null;
+Administration.backup.cloudLastProgressData = null;
+Administration.backup.cloudFakeProgressTimer = null;
+Administration.backup.cloudFakeProgressValue = 0;
 Administration.backup.progress = function(delay) {
 	if (Administration.backup.selectedId == null) {
 		return;
@@ -160,6 +248,7 @@ Administration.backup.progress = function(delay) {
 				return;
 			}
 
+			Administration.backup.ensurePopupProgress();
 			$('#backup_popup .progress').progressbar(response);
 
 			if (response.complete) {
@@ -169,10 +258,21 @@ Administration.backup.progress = function(delay) {
 				Administration.backup.list(id);
 
 				Core.msg(_('administration.maintenance.backup.auto_download'), 'success');								
+
+				if (response.cloud_enabled) {
+					setTimeout(function() {
+						Administration.backup.startCloudProgress(id);
+					}, 200);
+				}
 			}
 		},
+		error: function() {
+			Administration.backup.cancel();
+		},
 		complete: function() {
-			Administration.backup.progress(500);
+			if (Administration.backup.selectedId != null) {
+				Administration.backup.progress(500);
+			}
 		}
 	});
 };
@@ -187,8 +287,25 @@ Administration.backup.download = function(id, delay) {
 
 		return;
 	}
-	
-	window.open($('#last_backups_list a[rel=' + id + ']').attr('href'));
+
+	Administration.backup.triggerDownload($('#last_backups_list a[rel=' + id + ']').attr('href'));
+};
+
+Administration.backup.triggerDownload = function(url) {
+	if (!url) {
+		return;
+	}
+
+	var iframe = $('#' + Administration.backup.downloadFrameId);
+	if (iframe.size() === 0) {
+		iframe = $('<iframe />', {
+			id: Administration.backup.downloadFrameId,
+			name: Administration.backup.downloadFrameId
+		}).css('display', 'none').appendTo('body');
+	}
+
+	var separator = url.indexOf('?') >= 0 ? '&' : '?';
+	iframe.attr('src', url + separator + '_download=' + new Date().getTime());
 };
 
 Administration.backup.cancel = function(base) {
@@ -202,6 +319,164 @@ Administration.backup.cancel = function(base) {
 	
 	Core.hideOverlay();
 	$('#backup_popup').hide();
+};
+
+Administration.backup.showCloudPopupProgress = function() {
+	Core.showOverlay();
+
+	Administration.backup.ensureCloudPopup()
+		.appendTo('body')
+		.show()
+		.center();
+	
+	$('#cloud_backup_popup .progress').progressbar(); 
+};
+
+Administration.backup.startCloudProgress = function(id) {
+	Administration.backup.cloudSelectedId = id;
+	Administration.backup.cloudLastProgressData = null;
+	Administration.backup.cloudFakeProgressValue = 0;
+	Administration.backup.showCloudPopupProgress();
+	Administration.backup.cloudProgress(100);
+};
+
+Administration.backup.cloudProgress = function(delay) {
+	if (Administration.backup.cloudSelectedId == null) {
+		return;
+	}
+
+	if (delay) {
+		Administration.backup.cloudProgressTimeout = setTimeout(Administration.backup.cloudProgress, delay);
+		return;
+	}
+
+	Administration.backup.cloudProgressXHR = $.ajax({
+		url: window.location.pathname,
+		type: 'POST',
+		dataType: 'json',
+		data: {
+			controller: 'json',
+			module: 'administration.backup',
+			action: 'cloud_progress',
+			id: Administration.backup.cloudSelectedId
+		},
+		success: function(response) {
+			if (!response.success) {
+				Administration.backup.cancelCloudProgress();
+				Core.msg(_('administration.maintenance.backup.cloud_upload.error'), 'error');
+				return;
+			}
+
+			if (!response.total) {
+				Administration.backup.cancelCloudProgress();
+				Core.msg(_('administration.maintenance.backup.cloud_upload.error'), 'error');
+				return;
+			}
+
+			var label = response.service_label || '';
+			if (label) {
+				label = ' (' + label + ')';
+			}
+			$('#cloud_backup_popup .cloud_service_label').text(label);
+
+			// Detecta mudança para novo serviço
+			var serviceChanged = false;
+			if (Administration.backup.cloudLastProgressData) {
+				if (Administration.backup.cloudLastProgressData.current !== response.current) {
+					serviceChanged = true;
+				}
+			}
+
+			Administration.backup.cloudLastProgressData = $.extend({}, response);
+
+			// Se mudou de serviço, reseta o fake progress
+			if (serviceChanged) {
+				Administration.backup.cloudFakeProgressValue = 0;
+			}
+
+			Administration.backup.updateCloudProgressBar(response);
+
+			if (response.complete) {
+				// Completa a barra com animação
+				$('#cloud_backup_popup .progress').progressbar({
+					current: response.total,
+					total: response.total,
+					animate: true
+				});
+
+				setTimeout(function() {
+					var errorCount = parseInt(response.error_count, 10) || 0;
+					var messageKey = errorCount > 0
+						? 'administration.maintenance.backup.cloud_upload.error'
+						: 'administration.maintenance.backup.cloud_upload.success';
+					var level = errorCount > 0 ? 'error' : 'success';
+					Administration.backup.cancelCloudProgress();
+					Core.msg(_(messageKey), level);
+				}, 600);
+				return;
+			}
+		},
+		error: function(xhr, status) {
+			if (status === 'abort' || Administration.backup.cloudSelectedId == null) {
+				return;
+			}
+			
+			Administration.backup.cancelCloudProgress();
+			Core.msg(_('administration.maintenance.backup.cloud_upload.error'), 'error');
+		},
+		complete: function() {
+			if (Administration.backup.cloudSelectedId != null) {
+				Administration.backup.cloudProgress(500);
+			}
+		}
+	});
+};
+
+Administration.backup.updateCloudProgressBar = function(data) {
+	var baseProgress = 100 * data.current / data.total;
+	var fakeProgress = 0;
+
+	// Aumenta fake progress gradualmente (até 80% do passo atual)
+	if (data.current < data.total) {
+		Administration.backup.cloudFakeProgressValue = Math.min(
+			Administration.backup.cloudFakeProgressValue + 0.04,
+			0.8
+		);
+		fakeProgress = Administration.backup.cloudFakeProgressValue * (100 / data.total);
+	}
+
+	var totalProgress = baseProgress + fakeProgress;
+	var totalProgress = Math.min(totalProgress, 100);
+
+	// Calcula valores para exibição
+	var displayCurrent = Math.floor(totalProgress * data.total / 100);
+	var displayTotal = data.total;
+	var displayProgress = totalProgress;
+
+	// Atualiza o texto e a barra
+	var secondary = '';
+	$('#cloud_backup_popup .progress_text').text(
+		secondary + _f(displayCurrent) + ' / ' + _f(displayTotal) + ' (' + displayProgress.toFixed(1) + '%)'
+	);
+
+	var $bar = $('#cloud_backup_popup .progress_bar_inner');
+	$bar.stop().animate({ width: displayProgress + '%' }, 400, 'swing');
+};
+
+Administration.backup.cancelCloudProgress = function() {
+	Administration.backup.cloudSelectedId = null;
+	Administration.backup.cloudLastProgressData = null;
+	Administration.backup.cloudFakeProgressValue = 0;
+
+	clearTimeout(Administration.backup.cloudFakeProgressTimer);
+	clearTimeout(Administration.backup.cloudProgressTimeout);
+	if (Administration.backup.cloudProgressXHR) {
+		Administration.backup.cloudProgressXHR.abort();
+		Administration.backup.cloudProgressXHR = null;
+	}
+
+	Core.hideOverlay();
+	$('#cloud_backup_popup').hide();
 };
 
 
@@ -304,10 +579,16 @@ Administration.reindex.progress = function(delay) {
 			if (response.complete) {
 				Administration.reindex.cancel();
 				Core.msg(_('administration.maintenance.reindex.success'), 'success');
+				return;
 			}
 		},
+		error: function() {
+			Administration.reindex.cancel();
+		},
 		complete: function() {
-			Administration.reindex.progress(500);
+			if (Administration.reindex.selectedType) {
+				Administration.reindex.progress(500);
+			}
 		}
 	});
 };

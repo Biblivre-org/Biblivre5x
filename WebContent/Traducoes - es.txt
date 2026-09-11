@@ -305,6 +305,75 @@
 *administration.configuration.title.general.document_format_pdf = Usar formato PDF para documentos
 *administration.configuration.description.general.document_format_pdf = Esta configuración define si los documentos generados por el sistema estarán en formato PDF (Sí) o WORD (No). Seleccione "Sí" para usar PDF o "No" para usar WORD.
 
+*administration.configuration.title.administration.backup.dropbox.enabled = Habilitar backup en Dropbox
+*administration.configuration.description.administration.backup.dropbox.enabled = Define si el backup será enviado a Dropbox.
+*administration.configuration.title.administration.backup.dropbox.app_key = Dropbox App Key
+*administration.configuration.description.administration.backup.dropbox.app_key = App Key obtenida en Dropbox App Console.
+*administration.configuration.title.administration.backup.dropbox.app_secret = Dropbox Secret Key
+*administration.configuration.description.administration.backup.dropbox.app_secret = Secret Key obtenida en Dropbox App Console.
+*administration.configuration.title.administration.backup.dropbox.access_token = Dropbox Access Token
+*administration.configuration.description.administration.backup.dropbox.access_token = Access Token OAuth guardado automáticamente.
+*administration.configuration.title.administration.backup.dropbox.refresh_token = Dropbox Refresh Token
+*administration.configuration.description.administration.backup.dropbox.refresh_token = Refresh Token OAuth usado para renovar el acceso a Dropbox.
+*administration.configuration.title.administration.backup.dropbox.access_token_expires_at = Dropbox Access Token expira en
+*administration.configuration.description.administration.backup.dropbox.access_token_expires_at = Timestamp de expiración del Access Token guardado automáticamente.
+*administration.configuration.title.administration.backup.dropbox.account_email = Cuenta Dropbox conectada
+*administration.configuration.description.administration.backup.dropbox.account_email = Correo de la cuenta Dropbox autorizada para recibir los backups.
+*administration.configuration.dropbox.oauth.status.opening = Abriendo autenticación de Dropbox...
+*administration.configuration.dropbox.oauth.status.waiting = Esperando autorización en Dropbox...
+*administration.configuration.dropbox.oauth.status.exchanging = Finalizando conexión con Dropbox...
+*administration.configuration.dropbox.oauth.status.connected = Cuenta Dropbox conectada con éxito. Haga clic en Guardar para persistir otros cambios de la página.
+*administration.configuration.dropbox.oauth.status.cancelled = La ventana de autenticación se cerró antes de finalizar.
+*administration.configuration.dropbox.oauth.status.error = No fue posible completar la autenticación de Dropbox.
+*administration.configuration.dropbox.oauth.error.popup_blocked = El navegador bloqueó la ventana de autenticación. Permita pop-ups para continuar.
+*administration.configuration.dropbox.oauth.error.user_denied = La autorización de Dropbox fue cancelada.
+*administration.configuration.dropbox.oauth.error.missing_credentials = App Key y Secret Key son obligatorias para autenticar en Dropbox.
+*administration.configuration.dropbox.oauth.error.invalid_state = Sesión de autenticación expirada o inválida. Intente nuevamente.
+*administration.configuration.dropbox.oauth.error.missing_refresh_token = Dropbox no retornó Refresh Token. Conecte nuevamente solicitando acceso offline.
+*administration.configuration.dropbox.oauth.error.auth_url_failed = No fue posible generar la URL de autenticación de Dropbox.
+*administration.configuration.dropbox.oauth.error.exchange_failed = Error al finalizar la autenticación de Dropbox.
+
+*administration.configuration.title.administration.backup.box.enabled = Habilitar backup en Box
+*administration.configuration.description.administration.backup.box.enabled = Define si el backup será enviado a Box.
+*administration.configuration.title.administration.backup.box.client_id = Box Client ID
+*administration.configuration.description.administration.backup.box.client_id = Client ID de la aplicación OAuth en Box Developer Console.
+*administration.configuration.title.administration.backup.box.client_secret = Box Client Secret
+*administration.configuration.description.administration.backup.box.client_secret = Client Secret de la aplicación OAuth en Box Developer Console.
+*administration.configuration.title.administration.backup.box.access_token = Box Access Token / Developer Token
+*administration.configuration.description.administration.backup.box.access_token = Access Token OAuth guardado automáticamente o Developer Token temporal para pruebas.
+*administration.configuration.title.administration.backup.box.refresh_token = Box Refresh Token
+*administration.configuration.description.administration.backup.box.refresh_token = Refresh Token OAuth de Box usado para renovar el acceso.
+*administration.configuration.title.administration.backup.box.folder_id = Box Folder ID
+*administration.configuration.description.administration.backup.box.folder_id = ID de la carpeta de destino en Box (0 para raíz).
+
+*administration.configuration.title.administration.backup.pcloud.enabled = Habilitar backup en pCloud
+*administration.configuration.description.administration.backup.pcloud.enabled = Define si el backup será enviado a pCloud.
+*administration.configuration.title.administration.backup.pcloud.auth_token = pCloud Auth Token
+*administration.configuration.description.administration.backup.pcloud.auth_token = Token de autenticación obtenido en pCloud.
+*administration.configuration.title.administration.backup.pcloud.path = Ruta de pCloud
+*administration.configuration.description.administration.backup.pcloud.path = Ruta remota en pCloud (ej: /Backups).
+
+*administration.configuration.title.administration.backup.mega.enabled = Habilitar backup en MEGA
+*administration.configuration.description.administration.backup.mega.enabled = Define si el backup será enviado a MEGA.
+*administration.configuration.title.administration.backup.mega.cmd_path = Ruta de MEGAcmd
+*administration.configuration.description.administration.backup.mega.cmd_path = Directorio de mega-login/mega-put/mega-get.
+*administration.configuration.title.administration.backup.mega.email = MEGA E-mail
+*administration.configuration.description.administration.backup.mega.email = E-mail de acceso a MEGA.
+*administration.configuration.title.administration.backup.mega.password = MEGA Contraseña
+*administration.configuration.description.administration.backup.mega.password = Contraseña de acceso a MEGA.
+*administration.configuration.title.administration.backup.mega.remote_path = Ruta remota MEGA
+*administration.configuration.description.administration.backup.mega.remote_path = Ruta remota en MEGA (ej: /Backups).
+
+*administration.configuration.title.administration.backup.proton.enabled = Habilitar backup en Proton Drive
+*administration.configuration.description.administration.backup.proton.enabled = Define si el backup será enviado a Proton Drive.
+*administration.configuration.title.administration.backup.proton.rclone_path = Ruta del rclone
+*administration.configuration.description.administration.backup.proton.rclone_path = Ruta del ejecutable rclone configurado con Proton Drive.
+*administration.configuration.title.administration.backup.proton.rclone_remote = rclone Remote
+*administration.configuration.description.administration.backup.proton.rclone_remote = Nombre del remote rclone (ej: proton:Backups).
+
+*administration.configuration.cloud.selector.label = Servicio de nube
+*administration.configuration.cloud.selector.placeholder = Seleccione un servicio
+
 *administration.configuration.title.search.distributed_search_limit = Límite de resultados para búsquedas distribuidas
 *administration.configuration.title.search.result_limit = Límite de resultados
 *administration.configuration.title.search.results_per_page = Resultados por página
@@ -322,6 +391,8 @@
 *administration.configurations.save.success = Configuraciones alteradas con éxito
 
 *administration.maintenance.backup.auto_download = Backup realizado, descargando automáticamente en algunos segundos...
+*administration.maintenance.backup.cloud_upload.success = Backup enviado a la nube con éxito
+*administration.maintenance.backup.cloud_upload.error = Error al enviar el backup a la nube. Verifique la configuración del servicio e inténtelo de nuevo.
 *administration.maintenance.backup.backup_never_downloaded = Este backup nunca fue descargado
 *administration.maintenance.backup.backup_not_complete = Backup no terminado
 *administration.maintenance.backup.button_digital_media_only = Crear backup de archivos digitales
@@ -353,6 +424,10 @@
 *administration.maintenance.backup.error.invalid_restore_path = El directorio configurado para la restauración de los archivos de backup no es válido
 *administration.maintenance.backup.error.invalid_schema = La lista de backup posee una o más bibliotecas inválidas
 *administration.maintenance.backup.error.no_schema_selected = Usted precisa seleccionar al menos una biblioteca para ser restaurada
+*administration.maintenance.backup.error.cloud_download_failed = Error al descargar el backup desde la nube
+*administration.maintenance.backup.error.invalid_cloud_service = Servicio de nube inválido
+*administration.maintenance.backup.error.cloud_list_failed = Error al listar backups desde la nube
+*administration.maintenance.backup.error.test_failed = Error al validar el backup. El archivo de backup no se puede restaurar correctamente.
 *administration.maintenance.backup.error.psql_not_found = PSQL no encontrado
 
 *administration.maintenance.reindex.button_authorities = Reindizar base de autoridades
@@ -696,6 +771,21 @@
 *administration.setup.biblivre4restore.field.upload_file = Seleccionar archivo de backup
 
 *administration.setup.biblivre4restore.success.description = Backup restaurado con éxito
+
+*administration.setup.biblivre4restore_cloud.description = Usted también puede restaurar un backup almacenado en la nube.
+*administration.setup.biblivre4restore_cloud.field.service = Servicio de nube
+*administration.setup.biblivre4restore_cloud.field.filename = Nombre del archivo de backup
+*administration.setup.biblivre4restore_cloud.button = Restaurar backup desde la nube
+*administration.setup.biblivre4restore_cloud.select_file = Informe el nombre del archivo de backup
+*administration.setup.biblivre4restore_cloud.error = Error al restaurar backup desde la nube
+*administration.setup.biblivre4restore_cloud.error.description = No fue posible descargar el backup desde la nube. Verifique la configuración del servicio y el nombre del archivo.
+*administration.setup.biblivre4restore_cloud.confirm_title = Restaurar Backup de la Nube
+*administration.setup.biblivre4restore_cloud.confirm_description = ¿Usted realmente desea restaurar este backup de la nube?
+*administration.setup.biblivre4restore_cloud.select_placeholder = Seleccione un backup
+*administration.setup.biblivre4restore_cloud.button.refresh_list = Actualizar lista
+*administration.setup.biblivre4restore_cloud.button.prev = Anterior
+*administration.setup.biblivre4restore_cloud.button.next = Siguiente
+*administration.setup.biblivre4restore_cloud.page = Página
 
 *administration.setup.button.continue_to_biblivre = Ir para el Biblivre
 *administration.setup.button.show_log = Exhibir log
@@ -1237,6 +1327,7 @@
 *circulation.reservation.button.select_reader = Seleccionar lector
 
 *circulation.reservation.error.select_reader_first = Para reservar un registro usted precisa, primeramente, seleccionar un lector
+*circulation.reservation.error.select_holding_first = Para reservar, debe seleccionar un ejemplar.
 
 *circulation.reservation.holdings.title = Buscar Registro Bibliográfico
 

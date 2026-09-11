@@ -19,15 +19,25 @@
  ******************************************************************************/
 package biblivre.core;
 
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.UUID;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpStatus;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
 
 import biblivre.core.configurations.Configurations;
 import biblivre.core.configurations.ConfigurationsDTO;
@@ -127,19 +137,27 @@ public class Updates {
 		String uid = Updates.getUID();
 		String version = Updates.getVersion();
 
-		PostMethod updatePost = new PostMethod(Constants.UPDATE_URL);
-		updatePost.addParameter("uid", TextUtils.biblivreEncrypt(uid));
-		updatePost.addParameter("version", TextUtils.biblivreEncrypt(version));
+		List<NameValuePair> params = new ArrayList<NameValuePair>();
+		params.add(new BasicNameValuePair("uid", TextUtils.biblivreEncrypt(uid)));
+		params.add(new BasicNameValuePair("version", TextUtils.biblivreEncrypt(version)));
 
-		HttpClient client = new HttpClient();
-		client.getHttpConnectionManager().getParams().setConnectionTimeout(3000);
-		try {
-			int status = client.executeMethod(updatePost);
+		RequestConfig config = RequestConfig.custom()
+				.setConnectTimeout(3000)
+				.setConnectionRequestTimeout(3000)
+				.setSocketTimeout(3000)
+				.build();
 
-			if (status == HttpStatus.SC_OK) {
-				return updatePost.getResponseBodyAsString();
+		HttpPost updatePost = new HttpPost(Constants.UPDATE_URL);
+		updatePost.setConfig(config);
+		updatePost.setEntity(new UrlEncodedFormEntity(params, StandardCharsets.UTF_8));
+
+		try (CloseableHttpClient client = HttpClients.createDefault();
+				CloseableHttpResponse response = client.execute(updatePost)) {
+			int status = response.getStatusLine().getStatusCode();
+
+			if (status == HttpStatus.SC_OK && response.getEntity() != null) {
+				return EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
 			}
-			updatePost.releaseConnection();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

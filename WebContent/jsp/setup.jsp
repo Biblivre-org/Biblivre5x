@@ -102,9 +102,42 @@
 					<div class="clear"></div>
 				</div>
 			</div>
+			
+			<div class="description"><i18n:text key="administration.setup.biblivre4restore_cloud.description" /></div>
+
+			<div class="fields">
+				<div>
+					<div class="label"><i18n:text key="administration.setup.biblivre4restore_cloud.field.service" /></div>
+					<div class="value">
+						<select id="cloud_restore_service" class="finput">
+							<option value="google_drive">Google Drive</option>
+							<option value="onedrive">Microsoft OneDrive</option>
+							<option value="dropbox">Dropbox</option>
+							<option value="box">Box</option>
+							<option value="pcloud">pCloud</option>
+							<option value="mega">MEGA</option>
+							<option value="proton">Proton Drive</option>
+						</select>
+					</div>
+					<div class="clear"></div>
+				</div>
+				<div>
+					<div class="label"><i18n:text key="administration.setup.biblivre4restore_cloud.field.filename" /></div>
+					<div class="value">
+						<select id="cloud_restore_file_list" class="finput"></select>
+						<a class="button" id="cloud_restore_refresh"><i18n:text key="administration.setup.biblivre4restore_cloud.button.refresh_list" /></a>
+						<a class="button" id="cloud_restore_prev"><i18n:text key="administration.setup.biblivre4restore_cloud.button.prev" /></a>
+						<a class="button" id="cloud_restore_next"><i18n:text key="administration.setup.biblivre4restore_cloud.button.next" /></a>
+						<span id="cloud_restore_page_info"></span>
+						<input type="text" id="cloud_restore_filename" class="finput"/>
+					</div>
+					<div class="clear"></div>
+				</div>
+			</div>
 
 			<div class="buttons">
 				<a class="main_button arrow_right" onclick="Administration.setup.biblivre4RestoreFromFile();"><i18n:text key="administration.setup.biblivre4restore.button" /></a>
+				<a class="main_button arrow_right" onclick="Administration.setup.biblivre4RestoreFromCloud();"><i18n:text key="administration.setup.biblivre4restore_cloud.button" /></a>
 			</div>
 		</fieldset>	
 

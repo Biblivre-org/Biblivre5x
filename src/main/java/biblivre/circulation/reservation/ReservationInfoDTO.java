@@ -20,6 +20,7 @@
 package biblivre.circulation.reservation;
 
 import biblivre.cataloging.bibliographic.BiblioRecordDTO;
+import biblivre.cataloging.holding.HoldingDTO;
 import biblivre.circulation.user.UserDTO;
 import biblivre.core.AbstractDTO;
 
@@ -28,6 +29,7 @@ public class ReservationInfoDTO extends AbstractDTO {
 	private static final long serialVersionUID = 1L;
 
 	private BiblioRecordDTO biblio;
+	private HoldingDTO holding;
 	private ReservationDTO reservation;
 	private UserDTO user;
 	
@@ -53,6 +55,15 @@ public class ReservationInfoDTO extends AbstractDTO {
 
 	public void setBiblio(BiblioRecordDTO biblio) {
 		this.biblio = biblio;
+	}
+
+
+	public HoldingDTO getHolding() {
+		return holding;
+	}
+
+	public void setHolding(HoldingDTO holding) {
+		this.holding = holding;
 	}
 
 	public static long getSerialversionuid() {

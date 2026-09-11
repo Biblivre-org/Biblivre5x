@@ -35,6 +35,8 @@ import biblivre.cataloging.RecordBO;
 import biblivre.cataloging.RecordDTO;
 import biblivre.cataloging.bibliographic.BiblioRecordBO;
 import biblivre.cataloging.bibliographic.BiblioRecordDTO;
+import biblivre.cataloging.holding.HoldingBO;
+import biblivre.cataloging.holding.HoldingDTO;
 import biblivre.cataloging.search.SearchDTO;
 import biblivre.circulation.user.UserBO;
 import biblivre.circulation.user.UserDTO;
@@ -72,7 +74,7 @@ public class ReservationBO extends AbstractBO {
 	}
 
 	public List<ReservationDTO> get(RecordDTO record) {
-		return this.dao.list(null, record);
+		return this.dao.list(null, record, null);
 	}
 
 	public int countReserved(RecordDTO record) {
@@ -85,7 +87,7 @@ public class ReservationBO extends AbstractBO {
 	
 	public List<Integer> listReservedRecordIds(UserDTO user) {
 		List<Integer> reservedRecords = new ArrayList<Integer>();
-		List<ReservationDTO> list = this.dao.list(user, null);
+		List<ReservationDTO> list = this.dao.list(user, null, null);
 		
 		for (ReservationDTO dto : list) {
 			reservedRecords.add(dto.getRecordId());
@@ -95,7 +97,7 @@ public class ReservationBO extends AbstractBO {
 	}
 
 	public List<ReservationDTO> list(UserDTO user) {
-		List<ReservationDTO> list = this.dao.list(user, null);
+		List<ReservationDTO> list = this.dao.list(user, null, null);
 		BiblioRecordBO bo = BiblioRecordBO.getInstance(this.getSchema());
 		
 		for (ReservationDTO dto : list) {
@@ -109,15 +111,26 @@ public class ReservationBO extends AbstractBO {
 	}
 	
 	public List<ReservationInfoDTO> listReservationInfo(UserDTO user) {
-		List<ReservationDTO> list = this.dao.list(user, null);
+		List<ReservationDTO> list = this.dao.list(user, null, null);
 		List<ReservationInfoDTO> result = new LinkedList<ReservationInfoDTO>();
 		BiblioRecordBO bo = BiblioRecordBO.getInstance(this.getSchema());
+		HoldingBO hbo = HoldingBO.getInstance(this.getSchema());
 		
 		for (ReservationDTO dto : list) {
 			ReservationInfoDTO info = new ReservationInfoDTO();
 			info.setReservation(dto);
 
-			BiblioRecordDTO record = (BiblioRecordDTO) bo.get(dto.getRecordId(), RecordBO.MARC_INFO);
+			HoldingDTO holding = (HoldingDTO) hbo.get(dto.getRecordId(), RecordBO.HOLDING_INFO);
+			if (holding != null) {
+				info.setHolding(holding);
+			}
+
+			BiblioRecordDTO record = null;
+			if (holding != null && holding.getRecordId() != null) {
+				record = (BiblioRecordDTO) bo.get(holding.getRecordId(), RecordBO.MARC_INFO);
+			} else {
+				record = (BiblioRecordDTO) bo.get(dto.getRecordId(), RecordBO.MARC_INFO);
+			}
 			info.setBiblio(record);
 
 			result.add(info);
@@ -182,9 +195,9 @@ public class ReservationBO extends AbstractBO {
 		return count < limit;
 	}
 	
-	public boolean checkPreviousHoldingReservation(RecordDTO record) {//Verifica se já existe reserva ativa do referido exemplar
+	public boolean checkPreviousHoldingReservation(HoldingDTO holding) {//Verifica se já existe reserva ativa do referido exemplar
 		ReservationBO instance = this.getInstance(this.getSchema()); 
-		boolean isthereReservation = instance.isThereAReservation(record.getId());
+		boolean isthereReservation = instance.isThereAReservation(holding.getId());
 
 		if(isthereReservation)
 			throw new ValidationException("cataloging.reservation.error.onhold");
@@ -192,12 +205,66 @@ public class ReservationBO extends AbstractBO {
 		return isthereReservation;
 	}
 
+
+/*	
 	public int reserve(RecordDTO record, UserDTO user, int createdBy) {
 		this.checkReservation(record, user);
 		this.checkPreviousHoldingReservation(record);
 
 		ReservationDTO reservation = new ReservationDTO();
 		reservation.setRecordId(record.getId());
+		reservation.setUserId(user.getId());
+
+		UserTypeBO userTypeBo = UserTypeBO.getInstance(this.getSchema());
+		UserTypeDTO type = userTypeBo.get(user.getType());
+
+		Date today = new Date();
+		int days = (type != null) ? type.getReservationTimeLimit() : 7;
+		Date expires = CalendarUtils.calculateExpectedReturnDate(this.getSchema(), today, days);
+
+		reservation.setExpires(expires);
+		
+		int reservationId = this.dao.insert(reservation);
+		
+		return reservationId;
+	}
+	
+	
+	RESERVA
+	
+	public int reserve(RecordDTO record,HoldingDTO holding, UserDTO user, int createdBy) {
+		this.checkReservation(holding, user);//Verifica o exemplar
+		this.checkPreviousHoldingReservation(holding);
+
+		ReservationDTO reservation = new ReservationDTO();
+		reservation.setRecordId(record.getId());//Obra
+		reservation.setRecordId(holding.getId());//Exemplar
+		reservation.setUserId(user.getId());
+
+		UserTypeBO userTypeBo = UserTypeBO.getInstance(this.getSchema());
+		UserTypeDTO type = userTypeBo.get(user.getType());
+
+		Date today = new Date();
+		int days = (type != null) ? type.getReservationTimeLimit() : 7;
+		Date expires = CalendarUtils.calculateExpectedReturnDate(this.getSchema(), today, days);
+
+		reservation.setExpires(expires);
+		
+		int reservationId = this.dao.insert(reservation);
+		
+		return reservationId;
+	}
+	
+	
+*/	
+	
+	public int reserve(RecordDTO record,HoldingDTO holding, UserDTO user, int createdBy) {
+		this.checkReservation(holding, user);//Verifica o exemplar
+		this.checkPreviousHoldingReservation(holding);
+
+		ReservationDTO reservation = new ReservationDTO();
+		reservation.setRecordId(record.getId());//Obra
+		reservation.setHoldingId(holding.getId());//Exemplar
 		reservation.setUserId(user.getId());
 
 		UserTypeBO userTypeBo = UserTypeBO.getInstance(this.getSchema());

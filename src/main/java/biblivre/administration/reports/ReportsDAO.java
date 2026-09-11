@@ -791,13 +791,12 @@ public class ReportsDAO extends AbstractDAO {
 			Statement st = con.createStatement();
 			
 			StringBuilder sql = new StringBuilder();
-			sql.append(" SELECT u.name, u.id, b.iso2709, ");
+			sql.append(" SELECT u.name, u.id, h.iso2709, ");
 			sql.append(" to_char(r.created, 'DD/MM/YYYY') AS created ");
-			sql.append(" FROM reservations r, users u, biblio_records b ");
-			sql.append(" WHERE r.user_id = u.id ");
-			sql.append(" AND r.record_id = b.id ");
-			sql.append(" AND r.record_id is not null ");
-			sql.append(" ORDER BY u.name ASC; ");
+			sql.append(" FROM reservations r ");
+			sql.append(" JOIN users u ON r.user_id = u.id ");
+			sql.append(" JOIN biblio_holdings h ON r.holding_id = h.id ");
+			sql.append(" ORDER BY u.name ASC ");
 			
 			ResultSet rs = st.executeQuery(sql.toString());
 			

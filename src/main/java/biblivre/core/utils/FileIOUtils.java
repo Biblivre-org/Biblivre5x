@@ -190,13 +190,15 @@ public class FileIOUtils {
 			}
 
 			String fileName = file.getName();
+			String lowerFileName = fileName != null ? fileName.toLowerCase() : "";
+			boolean isBiblivreBackup = lowerFileName.endsWith(".b4bz") || lowerFileName.endsWith(".b5bz");
 			long size = file.getSize();
 			long lastModified = file.getLastModified();
 			String eTag = fileName + "_" + size + "_" + lastModified;
 			
 			// If-None-Match header should contain "*" or ETag. If so, then return 304.
 			String ifNoneMatch = request.getHeader("If-None-Match");
-			if (ifNoneMatch != null && FileIOUtils.matches(ifNoneMatch, eTag)) {
+			if (!isBiblivreBackup && ifNoneMatch != null && FileIOUtils.matches(ifNoneMatch, eTag)) {
 				response.setHeader("ETag", eTag); // Required in 304.
 				response.sendError(HttpServletResponse.SC_NOT_MODIFIED);
 				file.close();
@@ -206,7 +208,7 @@ public class FileIOUtils {
 			// If-Modified-Since header should be greater than LastModified. If so, then return 304.
 			// This header is ignored if any If-None-Match header is specified.
 			long ifModifiedSince = request.getDateHeader("If-Modified-Since");
-			if (ifNoneMatch == null && ifModifiedSince != -1 && ifModifiedSince + 1000 > lastModified) {
+			if (!isBiblivreBackup && ifNoneMatch == null && ifModifiedSince != -1 && ifModifiedSince + 1000 > lastModified) {
 				response.setHeader("ETag", eTag); // Required in 304.
 				response.sendError(HttpServletResponse.SC_NOT_MODIFIED);
 				file.close();
@@ -307,6 +309,12 @@ public class FileIOUtils {
 				disposition = accept != null && FileIOUtils.accepts(accept, contentType) ? "inline" : "attachment";
 			}
 
+			// Backups do Biblivre sempre devem baixar como anexo, nunca abrir inline.
+			if (isBiblivreBackup) {
+				contentType = "application/octet-stream";
+				disposition = "attachment";
+			}
+
 			// Initialize response.
 			response.reset();
 			response.setBufferSize(Constants.DEFAULT_BUFFER_SIZE);
@@ -315,6 +323,11 @@ public class FileIOUtils {
 			response.setHeader("ETag", eTag);
 			response.setDateHeader("Last-Modified", lastModified);
 			response.setDateHeader("Expires", System.currentTimeMillis() + Constants.DEFAULT_EXPIRE_TIME);
+			if (isBiblivreBackup) {
+				response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
+				response.setHeader("Pragma", "no-cache");
+				response.setDateHeader("Expires", 0);
+			}
 
 			OutputStream output = null;
 			try {
